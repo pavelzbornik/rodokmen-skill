@@ -715,13 +715,19 @@ def backed_facts(p, recs, transcripts=None):
     return list({digest(f): f for f in out}.values())
 
 
-def load_local(root=ROOT):
-    """Čti zdrojová data, nikoli zastarávající vygenerovaný web/public/velka-rodina.json."""
+def load_local(root=ROOT, *, ged_path=None, ged_root=None, research=False):
+    """Čti zdrojová data. Checklist si může vyžádat i původní údaje pro hledání."""
     root = Path(root)
     ns = runpy.run_path(str(root / "data/osoby.py"))
     P, same, side = ns["P"], ns.get("SAME", {}), ns.get("SIDE", [])
     fsmap = read_json(root / "data/familysearch.json", {})
     cfg = read_json(root / "data/web.json").get("velka_rodina", {})
+    if ged_path is not None:
+        cfg = dict(cfg, ged=str(ged_path))
+    if ged_root is not None:
+        if not cfg.get("ged"):
+            raise ValueError("--koren vyžaduje GEDCOM.")
+        cfg = dict(cfg, koren=ged_root)
     records = {r["klic"]: r for r in read_json(root / "data/zaznamy.json")}
     transcript_path = root / "data/prepisy.json"
     transcripts = read_json(transcript_path) if transcript_path.exists() else {}
@@ -738,7 +744,10 @@ def load_local(root=ROOT):
     living = vetve.living_map({**indi, **families}, dt.date.today().year)
     overeno = {A(i) for i in cfg.get("overeno", [])}
     # Čísla předků určuje stejný průchod jako ve Velké rodině; SAME sjednotí implex.
-    queue, kek = [(A(cfg.get("koren", "@I1@")), 1)], {}
+    root_id = A(cfg.get("koren", "@I1@"))
+    if research and cfg.get("ged") and root_id not in indi:
+        raise ValueError(f"Kořen {root_id} v GEDCOMu chybí. Zadej --koren.")
+    queue, kek = [(root_id, 1)], {}
     while queue:
         gid, k = queue.pop(0)
         if gid in kek or gid not in indi:
@@ -763,6 +772,8 @@ def load_local(root=ROOT):
         local[f"k:{k}"] = dict(name=p["n"], st=p.get("st"), living=wp.is_living(p, dt.date.today().year) or unknown_age,
                                  birth=by, keys=[["kekule", str(k)]], fs=ged.fs_id(fsmap, k=k, note=p.get("note")),
                                  facts=f, sources=[], parents=[], relation_evidence={}, records=p.get("r", []))
+        if research:
+            local[f"k:{k}"]["research"] = dict(k=k, person=p, events={}, marriages={})
     for alias, canonical in same.items():
         if f"k:{canonical}" in local:
             local[f"k:{canonical}"]["keys"].append(["kekule", str(alias)])
@@ -779,6 +790,10 @@ def load_local(root=ROOT):
                               birth=date_key(r["ev"].get("BIRT", [None])[0]), keys=[], fs=None, facts=[], sources=[],
                               parents=[], relation_evidence={}, records=list(refs), raw_facts=facts)
         local[key]["keys"].append(["ged", gid])
+        if research:
+            hints = local[key].setdefault("research", dict(k=k, person={}, events={}, marriages={}))
+            for tag, event in r["ev"].items():
+                hints["events"].setdefault(tag, event)
     for alias, canonical in aliases.items():
         if canonical in gid_key:
             local[gid_key[canonical]]["keys"].append(["ged", alias])
@@ -811,6 +826,17 @@ def load_local(root=ROOT):
         p["spouses"] = list(dict.fromkeys(p.get("spouses", []) + [gid_key[x] for fid in r.get("fams", []) for x in
                                          families.get(fid, {}).get("husb", []) + families.get(fid, {}).get("wife", [])
                                          if x in gid_key and gid_key[x] != gid_key[gid]]))
+        if research:
+            for fid in r["fams"]:
+                family = families.get(fid, {})
+                year = vr.year_of(family.get("ev", {}).get("MARR", [""])[0])
+                if not year:
+                    continue
+                for partner in family.get("husb", []) + family.get("wife", []):
+                    other = gid_key.get(partner)
+                    if other and other != gid_key[gid]:
+                        years = p["research"]["marriages"]
+                        years[other] = min(year, years.get(other, year))
         own = [pid for name, pid in sorted(cites.get(gid, ())) if loose_name(name) == loose_name(p["name"])]
         p["fs_cited"] = list(dict.fromkeys(p.get("fs_cited", []) + own))
     for key, p in local.items():

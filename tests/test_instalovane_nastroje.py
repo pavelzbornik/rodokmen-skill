@@ -66,3 +66,82 @@ def test_gmail_odkaz_z_instalovaneho_nastroje(projekt):
     }
     run(tool, draft, "--gmail")
     assert draft.read_text(encoding="utf-8") == text
+
+
+def test_archivni_nastroje_na_ciste_instalaci(projekt):
+    tools = projekt / "tools"
+    for name in ("badame", "forum_genealogie", "kramerius7", "matricula_img"):
+        assert "usage:" in run(tools / (name + ".py"), "--help")
+        assert (projekt / ".skill_sablona/tools" / (name + ".py")).is_file()
+    assert "zatím nic" in run(tools / "forum_genealogie.py", "hledano")
+    html = projekt / "pracovni/matricula.html"
+    with html.open("w", encoding="utf-8", newline="\n") as stream:
+        stream.write('<script>var book = {"labels":["Obálka","Index Taufe","1"]};</script>')
+    assert run(tools / "matricula_img.py", html, "https://data.matricula-online.eu/de/test/kniha/?pg=1",
+               "--rejstriky").splitlines() == ["2\tIndex Taufe\thttps://data.matricula-online.eu/de/test/kniha/?pg=2"]
+
+
+def test_pokryti_na_prazdne_instalaci(tmp_path):
+    run(SKILL / "tools/novy_projekt.py", tmp_path)
+    run(tmp_path / "tools/pokryti.py", "ukoly")
+    report = next((tmp_path / "pracovni/pokryti").glob("*.json"))
+    assert json.loads(report.read_text(encoding="utf-8")) == []
+    assert report.with_suffix(".md").is_file()
+
+
+def test_pokryti_s_gedcomem_a_importovanym_snapshotem(projekt):
+    def write(relative, data):
+        with (projekt / relative).open("w", encoding="utf-8", newline="\n") as stream:
+            stream.write(data if isinstance(data, str) else json.dumps(data, ensure_ascii=False))
+
+    write("data/osoby.py", 'P = {2: dict(n="Jméno z poznámek", y="1870–1940", st="doc", f=["* 1870"], r=[])}\n')
+    write("data/zaznamy.json", [])
+    write("data/fary.json", {"Obec A": {"fara": "Fara A"}})
+    write("data/familysearch.json", {"kekule": {"2": "AAAA-BBB"}, "ged": {"@I2@": "AAAA-BBB"}})
+    write("pracovni/test.ged", """0 HEAD
+0 @I1@ INDI
+1 NAME Novější /Osoba/
+1 BIRT
+2 DATE 1980
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Starší /Osoba/
+1 BIRT
+2 DATE 1870
+2 PLAC Obec A, Okres B
+1 DEAT
+2 DATE 1940
+1 FAMS @F1@
+0 @F1@ FAM
+1 HUSB @I2@
+1 CHIL @I1@
+0 TRLR
+""")
+    snapshot_path = projekt / "pracovni/snapshot.json"
+    snapshot = dict(schema="rodokmen.fs-snapshot.v1", persons={}, sources={"AAAA-BBB": []},
+                    record_matches_read={"AAAA-BBB": "2026-01-01T00:00:00Z"})
+    write("pracovni/snapshot.json", snapshot)
+    run(projekt / "tools/fs_sync.py", "snapshot-import", snapshot_path)
+    snapshot.update(sources={}, myheritage_read={"AAAA-BBB": "2026-01-02T00:00:00Z"},
+                    myheritage={"AAAA-BBB": {"totalHints": 0}})
+    write("pracovni/snapshot.json", snapshot)
+    run(projekt / "tools/fs_sync.py", "snapshot-import", snapshot_path)
+    coverage = projekt / "tools/pokryti.py"
+    run(coverage, "ukoly", "--ged", "pracovni/test.ged", "--krok", 4)
+    report = next((projekt / "pracovni/pokryti").glob("*.json"))
+    rows = json.loads(report.read_text(encoding="utf-8"))
+    assert [r["name"] for r in rows] == ["Jméno z poznámek"]
+    assert rows[0]["id"] == "k:2"
+    assert rows[0]["fs"] == "AAAA-BBB"
+    assert [n for n, _ in rows[0]["kroky"]] == [3, 4]
+    assert "Fara A" in report.with_suffix(".md").read_text(encoding="utf-8")
+    assert "## 3." not in report.with_suffix(".md").read_text(encoding="utf-8")
+    assert not (projekt / "web/src/data/site.json").exists()
+
+    write("data/zaznamy.json", [{"klic": "obec_a_scitani_1880", "druh": "S"}])
+    write("data/osoby.py", 'P = {2: dict(n="Jméno z poznámek", y="1870–1940", st="doc", f=["* 1870"], '
+          'r=["obec_a_scitani_1880"])}\n')
+    changes = json.loads(run(coverage, "rozdil", report, "--ged", "pracovni/test.ged"))
+    assert changes["nove_zapisy"] == ["Jméno z poznámek"]
+    assert "Jméno z poznámek: sčítání 1880" in changes["splnene_kroky"]
+    assert len(list(report.parent.glob("*.json"))) == 1

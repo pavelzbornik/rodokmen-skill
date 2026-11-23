@@ -11,9 +11,13 @@ Vznikl při skutečném hledání předků jedné rodiny.
 
 Autorem původního skillu je Jindřich Šaršon ([sarsonj@gmail.com](mailto:sarsonj@gmail.com), [GitHub](https://github.com/sarsonj)).
 
-**Verze této odnože je 0.8.3-pavel.1 (23. 11. 2026).** Přidává [synchronizaci s FamilySearch](skills/rodokmen/reference/fs-sync.md)
-a [odkazy na předvyplněné e-maily](skills/rodokmen/reference/zadosti.md). Jak ji nainstalovat nebo aktualizovat
-popisuje část [Instalace](#instalace).
+**Aktuální verze odnože je 0.8.3-pavel.2 (23. 11. 2026).** Přidává [přehled úkolů pro výzkum](skills/rodokmen/reference/vyzkum.md)
+a nové pomůcky pro Matriculu, Kramerius 7, Bádáme.cz a genealogické fórum. Obsahuje i
+[synchronizaci s FamilySearch](skills/rodokmen/reference/fs-sync.md) a [odkazy na předvyplněné e-maily](skills/rodokmen/reference/zadosti.md).
+Postup najdete v části [Instalace](#instalace).
+
+Pro Rakousko použijte [Matriculu](skills/rodokmen/reference/portaly.md#matricula)
+na matriky a jejich rejstříky a [ANNO](skills/rodokmen/reference/portaly.md#noviny-a-ročenky) na noviny a vojenské seznamy ztrát.
 
 > **Než začnete**
 >
@@ -68,6 +72,7 @@ vyzkoušený.
 
 - **Stav původního skillu k 5. 11. 2026 (verze 0.8.2):** Claude Code s hlavním modelem **Claude Opus 5.5**. Pomocníci, kteří hledají
   a čtou matriky jako první, běží na **Claude Sonnet 5.5**. Každý jejich nález pak hlavní model ověřuje na snímku.
+- **Stav odnože k 23. 11. 2026 (verze 0.8.3-pavel.2).** Nové nástroje pro výzkum vyžadují jen Python.
 - Vyzkoušeno na několika skutečných rodokmenech (největší má 243 předků v 11 generacích a 192 matričních zápisů).
   Výsledek se porovnával s větví, kterou jsme léta dělali ručně.
 
@@ -202,7 +207,8 @@ tady v repozitáři.
   projekt nic nemažou ani nepřepisují – kromě nejdéle nepoužitých snímků ve vlastní mezipaměti nad limitem.
 - **Na které servery chodí:** archivní portály (ARON SOA Zámrsk, SOA Třeboň, SOA Plzeň – Porta fontium, SOA Praha –
   eBadatelna, AHMP, Národní archiv, SOA Litoměřice, Matricula), noviny (ANNO, Kramerius), OpenStreetMap (mapa
-  a souřadnice obcí) a při instalaci webu registr npm.
+  a souřadnice obcí) a při instalaci webu registr npm. Nové nástroje čtou veřejné stránky Bádáme.cz a fóra
+  genealogie.taby.cz a veřejné API Krameria Jihočeské vědecké knihovny. Hledání na fóru a v knihovně předává zadaný dotaz.
   Na Netlify jen tehdy, když web sami zveřejníte. Nikam jinam nic neposílají, ani vaše data, ani poznámky.
 - **Doporučení:** nechte v Claude Code zapnuté schvalování příkazů, aspoň dokud si nezvyknete, co Claude dělá.
   Obecně instalujte skilly a pluginy jen od lidí, kterým věříte. Skill nikdo předem nekontroluje a Claude se

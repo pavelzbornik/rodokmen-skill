@@ -119,6 +119,9 @@ Cíl: znát co nejvíc o 3–4 generacích nazpět, než sáhneš do matrik.
 ## Fáze 2 – Matriky, generace po generaci
 Podrobný postup čtení: `reference/matriky.md`. Portály archivů: `reference/portaly.md`. Metodika: `reference/playbook.md` (EN).
 
+Když vybíráš další práci, otevři [přehled úkolů](reference/vyzkum.md). `tools/pokryti.py ukoly` použije místní data
+a stažené snapshoty FamilySearch. Odhad místa nebo roku ověř podle původního pramene.
+
 Základní smyčka pro každou osobu:
 1. **Vyber cíl a začni od nejmladšího zápisu.** Vezmi nejmladšího předka bez dokladu a hledej jeho **nejmladší
    známou událost**: úmrtí (online po 30 letech; ve 20. století uvádí datum a místo narození i rodiče), pak sňatek
@@ -323,9 +326,13 @@ Nedělej to pořád. Postup:
 | `policie_prihlasky.py Příjmení [Jméno] [od] [do]`, `karta <pořadí> out.jpg …` | pražské policejní přihlášky 1850–1914 (rodiny s dětmi a adresami), stažení karty |
 | `soal_zoomify.py <cesta nebo adresa> 0 out.jpg` | snímek SOA Litoměřice nebo ZA Opava (knihu najdi v prohlížeči; pozor na blokování) |
 | `matricula_dl.sh`, `matricula_batch.sh` | snímky z Matriculy (Rakousko…), URL se bere z prohlížeče |
+| `matricula_img.py <html knihy> <url knihy> --rejstriky` | odkazy na označené rejstříky ze zdrojového HTML Matriculy |
 | `anno.py`, `anno_snap.py`, `kramerius.py` | noviny: ANNO (rakouské; `--ztraty` = seznamy ztrát 1914–1919), Kramerius (české) |
+| `kramerius7.py hledej / titul / polozka / ocr` | Jihočeská vědecká knihovna, text OCR jen u veřejných stran |
+| `badame.py stranka N / vse`, `forum_genealogie.py hledej / tema` | rozcestník zdrojů a veřejné příspěvky jako vodítka |
 | `ged_import.py strom.ged "Jméno"` | předci z rodinného stromu (GEDCOM) + fronta zápisů |
 | `fs_sync.py scope / snapshot-import / diff / map / log` a `fs_prohlizec.js` | porovnání místních údajů s FamilySearch a zápis zkontrolovaného plánu |
+| `pokryti.py ukoly / rozdil` | soupis pokrytí a další kroky z projektu, volitelného GEDCOMu a místních snapshotů |
 | `mailto.py <koncept.md> --gmail` | odkazy k otevření předvyplněného e-mailu |
 | `ftb_export.py strom.ftb out.ged ["Jméno" rok linie.md [Photos/]]` | záloha z MyHeritage (.ftb) → GEDCOM + přímá linie s původem údajů |
 | `mapa_knihy.py aron/pf/ahmp <kniha> <od> <do> [krok]`, `--vedle --ostre --vyrez …`, `soubory …` | mapa knihy (horní pruhy snímků pod sebou) a montáž sloupce se jmény vedle sebe – orientace v knihách po vsích (`matriky.md`) |

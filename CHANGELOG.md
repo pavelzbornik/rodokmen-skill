@@ -1,10 +1,16 @@
 # Co je nového
 
-Změny ve skillu rodokmen, nejnovější verze nahoře. Každá verze má na GitHubu i
-[vydání (Releases)](https://github.com/sarsonj/rodokmen-skill/releases) – kdo chce dostávat upozornění,
-dá v repozitáři **Watch → Custom → Releases**.
+Změny ve skillu rodokmen, nejnovější verze nahoře. Vydání původního skillu najdete na
+[GitHubu](https://github.com/sarsonj/rodokmen-skill/releases).
 
 Projekt založený starší verzí Claude sám nabídne aktualizovat (pozná to podle souboru `VERZE`).
+
+## 0.8.3-pavel.2 – 23. 11. 2026
+
+- Místní seznam úkolů pro výzkum využívá údaje projektu, volitelný GEDCOM a místní importy z FamilySearch.
+- Bádáme.cz vypíše odkazy z rozcestníku. Nástroj pro genealogické fórum hledá ve veřejných příspěvcích.
+- Kramerius 7 Jihočeské vědecké knihovny nabízí hledání, metadata a OCR veřejných stran.
+- Uložené HTML knihy z Matriculy pomůže najít stránky rejstříku a vytvořit na ně odkazy.
 
 ## 0.8.3-pavel.1 – 23. 11. 2026
 

@@ -41,6 +41,7 @@ LIMITY = {                           # konec názvu webu: (dotaz, obrázek)
     "digi.nacr.cz": (4.0, 4.0),      # Národní archiv (policejní přihlášky) – po pár rychlých kartách přiškrcuje podle IP
     "aron.vychodoceskearchivy.cz": (2.0, 2.0),   # ARON: celý sken (2–4 MB) jedním požadavkem; dlaždice imgx.… dál 0,1 s
     "portafontium.eu": (10.0, 10.0), # SOA Plzeň – robots.txt „Crawl-delay: 10“ (snímek IIIF je jeden požadavek)
+    "genealogie.taby.cz": (30.0, 30.0),  # phpBB omezuje hledání hostů, společná brzda platí i napříč projekty
 }
 ZAKAZ = {                            # konec názvu webu: (cesty povolené skriptům, hláška pro ostatní)
     suffix: (re.compile(r"/actapublica/matrika/hledani"),

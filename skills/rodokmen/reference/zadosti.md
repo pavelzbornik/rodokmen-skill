@@ -29,6 +29,10 @@ Postup je v oddílu [E-mail archivu nebo úřadu](../SKILL.md#e-mail-archivu-neb
 - Adresu instituce (e-mail podatelny nebo matriky, ID datové schránky) vždy ověř na jejím oficiálním webu.
 
 ## Koncept
+
+Nejdřív ověř, které prameny už jsou online v portálu archivu, digitální knihovně nebo v katalogu FamilySearch.
+V konceptu jednou větou uveď, co jsi prohledal a který pramen nebo údaj ještě potřebuješ.
+
 Soubor `pracovni/zadosti/<instituce>_<co>.md`. Víc žádostí v jednom souboru odděl řádkem `---`. Kontakty uživatele
 (adresa, telefon) patří jen sem, ne do `data/`.
 

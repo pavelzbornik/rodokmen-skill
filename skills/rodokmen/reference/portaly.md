@@ -287,14 +287,21 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
   nad 20) – vypíše citaci a trvalý odkaz (`index.php?action=link&ref=czarch:CZ-100000010:874&karton=K&folium=F`).
 - **Nepokrývá Smíchov, Vinohrady, Žižkov, Karlín a další předměstí před 1922** (byla to samostatná města). Náboženství karty neuvádějí.
 
-## Matricula (Rakousko, Bavorsko, Polsko…; data.matricula-online.eu) – `tools/matricula_*.sh`
+## Matricula
+
+- Pro Rakousko, Bavorsko a část Polska hledej na [Matricule](https://data.matricula-online.eu/). Nejdřív ověř, pod
+  kterou diecézi a farnost obec v hledaném roce patřila. Zkontroluj roky a druh zápisu u knihy.
 - Bez přihlášení. Seznam knih: `…/de/oesterreich/<diecéze>/<farnost>/?page=N`; snímek knihy `…/<id>/?pg=<snímek>`
   (zároveň trvalý odkaz).
+- **Odkazy na rejstřík z uloženého HTML.** V prohlížeči ulož zdroj stránky knihy (HTML) třeba do `pracovni/kniha.html`.
+  Spusť `python -I -X utf8 tools/matricula_img.py pracovni/kniha.html "<adresa knihy>" --rejstriky`. Výstup má číslo
+  snímku, popisek a trvalý odkaz. Bez `--rejstriky` vypíše všechny popisky. Když žádný popisek rejstříku nenajde,
+  prohlédni začátek a konec knihy. Nástroj pracuje jen s uloženým HTML.
 - URL obrázku obsahuje `csrf` a `ctrl` počítané JavaScriptem → je potřeba prohlížeč (Playwright / Claude in Chrome):
   otevři knihu, klikni na stránku (`.docview-pagelink`), URL obrázku vezmi z `performance.getEntriesByType('resource')`
   a stáhni `bash tools/matricula_dl.sh "<url>" pracovni/x.jpg`. Víc stránek: soubor řádků „<snímek> <url>“ → `matricula_batch.sh`.
-- Rejstřík najdeš bez prohlížeče: HTML stránky knihy má seznam `labels` s popisky snímků („04-Index Taufe_0001“).
 - Vojenské matriky (např. Štýrský Hradec) tam nejsou – jsou v Kriegsarchivu ve Vídni (offline).
+- Pro rakouské noviny, úřední jmenování a vojenské seznamy ztrát pokračuj v [ANNO](#noviny-a-ročenky).
 
 ## Polsko – Geneteka (geneteka.genealodzy.pl)
 - Zdarma dobrovolnické indexy křtů, sňatků a úmrtí po farnostech; hledej ve webovém rozhraní (vojvodství → farnost →
@@ -363,7 +370,7 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
 - Evidence hrobových míst: správa hřbitova (kdo je v hrobě uložen, kdo platí nájem – často žijící potomek);
   řada měst má online vyhledávání hrobů. Mezinárodně BillionGraves a Find a Grave.
 
-## Noviny a ročenky – `tools/anno.py`, `tools/anno_snap.py`, `tools/kramerius.py`
+## Noviny a ročenky
 **Kdy se vyplatí:** státní a vrchnostenští úředníci, soudci, učitelé, faráři, důstojníci, vojenští lékaři, notáři,
 poštmistři, starostové, podnikatelé – noviny otiskovaly jmenování, přeložení, vyznamenání, penze, konkurzy, oznámení
 sňatků a parte (zhruba od 1860). Z toho plyne, **kde člověk kdy žil** → kde hledat křty dětí, sňatek, úmrtí.
@@ -372,6 +379,11 @@ A když osoba „chybí“ v očekávaných matrikách (stěhovala se se službo
   – jména **německy** („Johann Nowak“, „Wenzel Dworschak“). Výřez místa: `tools/anno_snap.py <docId> "<dotaz>" pracovni/x.jpg`.
   ALEX a annoshow jsou za Cloudflare – neobcházet.
 - Kramerius NK ČR (české noviny, ročenky, adresáře): `python3 -I tools/kramerius.py 'text_ocr:"Jan Novák" AND datum_begin:[1900 TO 1910]'`.
+- Kramerius 7 [Jihočeské vědecké knihovny](https://kramerius.cbvk.cz/) používá vlastní nástroj. Zkus
+  `python -I -X utf8 tools/kramerius7.py hledej "Příjmení" --od 1880 --do 1920 --jen-volne` pro hledání v OCR,
+  `titul "<název>"` pro názvy a `hledej "<obec>" --model map` pro mapy. Příkaz `polozka <uuid>` vypíše metadata,
+  přístupnost a licence. `ocr <uuid>` stáhne text jen u jednotlivé strany s `accessibility:public`. Úryvek ověř
+  na snímku. Podmínky dalšího užití zjisti u knihovny podle licence konkrétní položky.
 - Vojenské schematismy: fulltext na archive.org (např. `militrschematis13kriegoog` = 1850).
 - **Vojáci 1. světové války – seznamy ztrát** (ANNO, plný text): `python3 -I tools/anno.py '"Příjmení Jméno"' 1914 1919 3 --snip --ztraty`
   (jen `vll` Verlustliste, `vlv` abecední rejstřík s číslem seznamu, `nvv` Nachrichten über Verwundete; jiné listy
