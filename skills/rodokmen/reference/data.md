@@ -130,8 +130,9 @@ v `web/src/data/site.json` (`people`). Při přejmenování osoby se slug změn�
   Pro nevlastního sourozence nebo příbuzného s vlastní rodinou použij odpovídající vazby v GEDCOMu.
 - Pokud používáš GEDCOM pro [synchronizaci s FamilySearch](fs-sync.md#co-se-porovnává), ponech původní
   export a doplnění udržuj v samostatném GEDCOMu nastaveném přes `velka_rodina.doplnky` v `data/web.json`.
-  Doložený zápis můžeš připojit značkou `_ZAZNAM` s klíčem z `zaznamy.json`. Ověř, že nové osoby mají
-  jedinečná ID a vazby míří na správné osoby a rodiny. Chybu v převzatém
+  Doložený zápis můžeš připojit značkou `_ZAZNAM` s klíčem z `zaznamy.json`. Při přesunu osoby ze `SIDE`
+  do doplňkového GEDCOMu zachovej její dosavadní ID `@IS…@`. Ověř, že nové osoby mají jedinečná ID a vazby
+  míří na správné osoby a rodiny. Chybu v převzatém
   stromu můžeš pro synchronizaci opravit přes `velka_rodina.opravy`. Do `proc` uveď důvod a zdroj opravy.
   Před uložením projdi hlášky `kontrola.py` a ověř, že vztahy odpovídají dokladům. Zkontroluj zejména záměny
   jmenovců, věk rodičů při narození dětí a případné kruhy ve vazbách rodič a dítě.

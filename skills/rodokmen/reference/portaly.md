@@ -33,9 +33,10 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   U malé osady zkus heslo farní obce a nadpisy oddílů knihy. Zjištěnou faru a zdroj poznamenej do deníku.
   Pro návrhy křtů ji můžeš uložit i do [volitelného `data/fary.json`](vyzkum.md#místní-rodokmen-a-familysearch).
 - Při chybě v prohlížeči zjisti, který požadavek selhal. Chyba cizího skriptu nevypovídá o dostupnosti
-  snímku. Pokud selhal archivní požadavek s HTTP 403, 429 nebo 503, dodrž [pravidla brzdy](../SKILL.md#šetrně-k-archivům--brzda-toolsslusnepy).
-  Jinou cestu hledej v nezávislém katalogu nebo kopii fondu. Při shodě knihy v jiném katalogu ověř titulní
-  stranu a stránku se zápisem. Pořadí snímků se může lišit.
+  snímku. Při HTTP 403, 429 nebo 503 na archivním požadavku zapiš zastavení do brzdy, řekni to uživateli
+  a na daném archivu ten den skonči. [Pravidla brzdy](../SKILL.md#šetrně-k-archivům--brzda-toolsslusnepy)
+  platí i pro jiné rozhraní téhož archivu. Má-li kopii knihy jiná instituce, ověř tam titulní stranu a stránku
+  se zápisem. Pořadí snímků se může lišit.
 
 ## ARON (SOA Zámrsk) – hotové nástroje
 - **Hledání svazků:** `python3 -I tools/aron_search.py "Holice"` → řádky `apu_id | signatura, roky | druh, obce`.
@@ -431,7 +432,8 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
 - **Snímek do projektu.** Nejdřív zkontroluj `pracovni/` a mezipaměť (`tools/cache.py najdi`). Pokud snímek
   nemáš, v přihlášené záložce s `tools/fs_prohlizec.js` spusť `await fs.snimek(ark)` s ARK snímku
   (`3:1:…` z adresy nebo výsledku hledání). Znáš-li DGS a pořadí snímku, použij `await fs.stahni(dgs, poradi)`.
-  Nástroj uloží soubor s číslem filmu a pořadím v názvu. Do `pracovni/` převezmi jen očekávaný soubor.
+  Prohlížeč stáhne `f<film>_<pořadí>.jpg` do složky pro stahování. Do `pracovni/` přesuň jen očekávaný
+  soubor po dokončení stahování a pokračuj výřezem přes `tools/vyrez.py`.
 - Pokud ovládání prohlížeče neumožní soubor převzít, požádej uživatele, ať snímek uloží tlačítkem Download
   a předá ho s adresou stránky. Omezený snímek zaznamenej podle [pravidel FamilySearch](fs-sync.md#příkazy).
   Žádné vlastní přijímače na localhostu ani jiné obcházení ochran prohlížeče.

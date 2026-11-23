@@ -160,8 +160,9 @@ pro každý web pro všechny procesy na počítači.
   všechny projekty; `cache.py stav` ukáže úsporu). Snímky eBadatelny ukládej z prohlížeče (`portaly.md`).
 
 ### Pomocníci (subagenti) – šetrně
-Před velkým kolem řekni uživateli, kolik práce rozdělíš a proč, a nech si to schválit. Pomocníkům dej krátká zadání
-pro různé větve nebo archivy. Levnější model použij na práci s hotovým textem, třeba třídění odkazů a výtah z přepisu.
+Před velkým kolem řekni uživateli, kolik práce rozdělíš a proč, a nech si to schválit. Začni se dvěma pomocníky
+a dej jim krátká zadání pro různé větve nebo archivy. Levnější model použij na práci s hotovým textem, třeba
+třídění odkazů a výtah z přepisu.
 Pro čtení matrik, přihlášek a čísel na mapách vyber model, jehož čtení jsi ověřil na podobných snímcích.
 Má-li nástroj volbu náročnosti, začni na střední (`medium`) a drž se limitu uživatele. K práci se snímky
 předávej jen potřebné listy nebo čitelné výřezy. Pomocník vrací přepis a odkaz na snímek.

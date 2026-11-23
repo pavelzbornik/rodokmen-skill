@@ -36,7 +36,8 @@ Když u osoby zbývá více kroků, objeví se v několika oddílech. Každý n�
 
 ## Rozcestník a genealogické fórum
 
-Při čtení přes nástroje dodržuj podmínky portálu. Stažené stránky a příspěvky nech v `pracovni/`.
+Při čtení přes nástroje dodržuj podmínky portálu. Do vyhledávání zadávej jen údaje, které můžeš předat veřejnému webu.
+Stažené stránky a příspěvky nech v `pracovni/`.
 
 - `python -I -X utf8 tools/badame.py stranka 1` vypíše odkazy z [Bádáme.cz](https://badame.cz/) a uloží stránku
   a výsledky do `pracovni/badame/`. Další stranu zadej číslem. `vse --od N --max-stran 5` projde omezený počet
@@ -56,7 +57,7 @@ Při čtení přes nástroje dodržuj podmínky portálu. Stažené stránky a p
   `pracovni/forum/temata/`. Oba příkazy čtou první stranu, `--max-stran N` dovolí načíst víc, nejvýš deset.
   Pokud fórum požádá o pauzu nebo zablokuje požadavek, skonči a pokračuj později.
 - `navrhy` vypíše místní nápady na hledání podle historických osob a obcí, `hledano` zobrazí místní deník dotazů.
-  Do hledání zadávej jen údaje, které můžeš předat veřejnému webu. Příspěvky jsou vodítka, která ověř na snímku.
+  Příspěvky jsou vodítka, která ověř na snímku.
   Před přípravou dotazu [prověř dostupné prameny](zadosti.md#před-dotazem). Příspěvek posílá uživatel sám.
 
 Pro rakouské prameny otevři [Matriculu a ANNO](portaly.md#matricula).
