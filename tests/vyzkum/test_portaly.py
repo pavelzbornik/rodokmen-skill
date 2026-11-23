@@ -64,7 +64,7 @@ def test_badame_ulozi_stranku_a_cizi_odkazy_jen_vypise(tool, monkeypatch, tmp_pa
 @pytest.mark.parametrize("host", ["badame.cz", "genealogie.taby.cz", "kramerius.cbvk.cz"])
 def test_nastroj_neotevre_presmerovani_mimo_portal(tool, host):
     slusne = tool("slusne")
-    redirect = slusne.PresmerovaniPortalu((host,))
+    redirect = slusne.PresmerovaniPortalu((host.upper(),))
     request = Request(f"https://{host}/test/")
     with pytest.raises(HTTPError, match="Přesměrování mimo portál"):
         redirect.redirect_request(request, None, 302, "", {}, "https://example.org/")
@@ -193,13 +193,21 @@ def test_pokryti_nepovazuje_ztraceny_kanal_snapshotu_za_splneny(tool):
     assert coverage.rozdil(before, after)["splnene_kroky"] == ["Zkušební osoba: čtení na FamilySearch"]
 
 
-def test_pokryti_doplni_rok_krtu_k_rodisti_gedcomu(tool):
+@pytest.mark.parametrize("date", ["", "UNKNOWN"])
+def test_pokryti_doplni_rok_krtu_k_rodisti_gedcomu(tool, date):
     coverage = tool("pokryti")
-    p = dict(research=dict(person={}, events={"BIRT": ["", "Obec A"], "CHR": ["ABT 1880", "Fara B"],
-                                              "DEAT": ["", "Obec C"], "BURI": ["1940", "Fara D"]}))
+    p = dict(research=dict(person={}, events={"BIRT": [date, "Obec A"], "CHR": ["ABT 1880", "Fara B"],
+                                              "DEAT": [date, "Obec C"], "BURI": ["1940", "Fara D"]}))
     row = coverage.udaje(p)
     assert (row["by"], row["rodiste"], row["dy"], row["umrti"]) == (1880, "Obec A", 1940, "Obec C")
     assert row["by_priblizne"] is True
+
+
+@pytest.mark.parametrize(("birth", "place", "expected"), [("ABT 1880", "Obec A", True), ("1880", "Obec A ?", False)])
+def test_pokryti_odlisuje_nejisty_rok_od_nejisteho_mista(tool, birth, place, expected):
+    coverage = tool("pokryti")
+    p = dict(research=dict(person={"y": "* 1880", "f": [f"* 1880 {place}"]}, events={"BIRT": [birth, "Obec A"]}))
+    assert coverage.udaje(p)["by_priblizne"] is expected
 
 
 def test_pokryti_vysvetli_spatny_format_far(tool):
@@ -208,13 +216,20 @@ def test_pokryti_vysvetli_spatny_format_far(tool):
         coverage.stav({}, [], {}, {"Obec A": "Fara B"})
 
 
-def test_pokryti_pouzij_cile_slouceni_ze_snapshotu(tool, tmp_path):
+@pytest.mark.parametrize(("maps", "read", "expected"), [
+    ([{"AAAA-BBB": "BBBB-CCC"}], "BBBB-CCC", {"AAAA-BBB", "BBBB-CCC"}),
+    ([{"AAAA-BBB": "BBBB-CCC"}, {"BBBB-CCC": "CCCC-DDD"}], "CCCC-DDD", {"AAAA-BBB", "BBBB-CCC", "CCCC-DDD"}),
+    ([{"AAAA-BBB": "BBBB-CCC"}, {"AAAA-BBB": "CCCC-DDD"}], "BBBB-CCC", {"BBBB-CCC"}),
+    ([{"AAAA-BBB": "BBBB-CCC"}, {"BBBB-CCC": "AAAA-BBB"}], "BBBB-CCC", {"BBBB-CCC"}),
+])
+def test_pokryti_pouzij_cile_slouceni_ze_snapshotu(tool, tmp_path, maps, read, expected):
     coverage = tool("pokryti")
-    snapshot = tmp_path / "snapshot-test.json"
-    snapshot.write_bytes(json.dumps(dict(schema="rodokmen.fs-snapshot.v1", persons={},
-                                         sources={"BBBB-CCC": []}, merged={"AAAA-BBB": "BBBB-CCC"})).encode())
-    channels = coverage.vyber_snapshot([snapshot])
-    assert channels["zdroje"] == {"AAAA-BBB", "BBBB-CCC"}
+    for index, merged in enumerate(maps):
+        snapshot = tmp_path / f"snapshot-test-{index}.json"
+        snapshot.write_bytes(json.dumps(dict(schema="rodokmen.fs-snapshot.v1", persons={},
+                                             sources={read: []}, merged=merged)).encode())
+    channels = coverage.vyber_snapshot(tmp_path.glob("snapshot-*.json"))
+    assert channels["zdroje"] == expected
 
 
 def test_matricula_cte_escapovane_popisky_a_odmita_cizi_adresu(tool):

@@ -43,22 +43,23 @@ def udaje(p):
     od, _, do = re.sub(r"\s*([–—-])\s*", "–", roky).partition("–")
     if od.lstrip().startswith("†"):
         od, do = "", od
-    by = rok(p.get("birth")) or rok(od) or rok(narozeni[0] or krest[0])
-    by_priblizne = bool(not p.get("birth") and (
-        re.search(r"\b(?:asi|kolem|před|po|abt|cal|est|bef|aft|bet|from|to)\b|\?",
-                  od if rok(od) else narozeni[0], re.I)
-        or not rok(od) and not narozeni[0] and krest[0]))
-    dy = rok(umrti[0] or pohreb[0]) or rok(do)
+    rok_narozeni, rok_krtu = rok(narozeni[0]), rok(krest[0])
+    by = rok(p.get("birth")) or rok(od) or rok_narozeni or rok_krtu
+    nejiste = r"\b(?:asi|kolem|před|po|abt|cal|est|bef|aft|bet|from|to)\b|\?"
+    by_priblizne = bool(by and (
+        any(rok(datum) == by and re.search(nejiste, datum, re.I) for datum in (od, narozeni[0]))
+        or not rok_narozeni and rok_krtu == by and not p.get("birth")))
+    dy = rok(umrti[0]) or rok(pohreb[0]) or rok(do)
     odkud, kam = obec(narozeni[1] or krest[1]), obec(umrti[1] or pohreb[1])
     for fact in person.get("f", []):
-        m = re.match(r"^\s*([*†])\s*(?:\d{1,2}\.\s*\d{1,2}\.\s*)?(\d{4})(?:\s+(.+))?$", fact)
+        m = re.match(r"^\s*([*†])\s*(?:(\d{1,2}\.\s*\d{1,2}\.)\s*)?(\d{4})(?:\s+(.+))?$", fact)
         if m:
-            misto = obec(m[3] or "")
+            year, misto = int(m[3]), obec(m[4] or "")
             if m[1] == "*":
-                by, odkud = int(m[2]), misto or odkud
-                by_priblizne = "?" in fact
+                by_priblizne = by_priblizne and year == by and not m[2]
+                by, odkud = year, misto or odkud
             else:
-                dy, kam = int(m[2]), misto or kam
+                dy, kam = year, misto or kam
     resi = events.get("RESI", ["", ""])
     return dict(by=by, by_priblizne=by_priblizne, dy=dy, rodiste=odkud, umrti=kam,
                 bydleni=(rok(resi[0]), obec(resi[1])))

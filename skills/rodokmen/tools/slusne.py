@@ -130,7 +130,7 @@ class PresmerovaniPortalu(HTTPRedirectHandler):
     """Textový dotaz smí pokračovat jen na HTTPS adresu téhož portálu."""
 
     def __init__(self, hosty):
-        self.hosty = hosty
+        self.hosty = {host.lower() for host in hosty}
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         dst = urlsplit(newurl)
