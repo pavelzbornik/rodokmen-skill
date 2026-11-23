@@ -9,7 +9,7 @@
 Hledání a čtení veřejných témat jde bez účtu přes tools/slusne.py. Výsledky zůstanou v pracovni/forum/.
 Příspěvek ber jako stopu k původnímu prameni. Návrhy hledání a deník se čtou pouze z místních souborů.
 """
-import argparse, hashlib, html as _html, json, math, os, re, sys, time, urllib.parse, urllib.request
+import argparse, hashlib, html as _html, json, math, os, re, sys, time, urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = "https://genealogie.taby.cz/"
@@ -201,10 +201,8 @@ def _nacti_data():
 
 def _stahni(url):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import slusne  # noqa: F401 – brzda proti zablokování (společný limit dotazů)
-    req = urllib.request.Request(url, headers={"User-Agent": slusne.UA, "Accept-Language": "cs"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read().decode("utf-8", errors="replace")
+    import slusne
+    return slusne.text_portalu(url)
 
 
 def _zapis(cesta, text):
@@ -225,11 +223,12 @@ def hledej(slova, nazvy=False, rubrika=None, autor=None, max_stran=1):
         if start:
             q.append(("start", str(start)))
         html = _stahni(BASE + "search.php?" + urllib.parse.urlencode(q))
-        if je_flood(html):
-            raise ValueError("Fórum teď hledání odmítlo (limit pro hosty). Vyčkej několik minut.")
         h = parse_hledani(html, start)
-        if not h["vysledky"] and not re.search(r"žádné (?:výsledky|vhodné výsledky|příspěvky|téma)|0\s+výsledk", html, re.I):
-            raise ValueError("Výsledky fóra se nepodařilo přečíst. Zkontroluj stránku v prohlížeči.")
+        if not h["vysledky"]:
+            if je_flood(html):
+                raise ValueError("Fórum teď hledání odmítlo (limit pro hosty). Vyčkej několik minut.")
+            if not re.search(r"žádné (?:výsledky|vhodné výsledky|příspěvky|téma)|0\s+výsledk", html, re.I):
+                raise ValueError("Výsledky fóra se nepodařilo přečíst. Zkontroluj stránku v prohlížeči.")
         celkem = max(celkem, h["celkem"])
         vysledky += h["vysledky"]
         if h["dalsi"] is None:

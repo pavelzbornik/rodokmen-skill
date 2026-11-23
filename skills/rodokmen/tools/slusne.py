@@ -32,6 +32,8 @@ Stav je v ~/.cache/rodokmen_slusne/ (Windows %LOCALAPPDATA%\\rodokmen_slusne), j
 """
 import http.client, io, json, os, re, shutil, socket, subprocess, sys, tempfile, threading, time
 from urllib.parse import urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.error import HTTPError
 
 DOTAZ, OBRAZEK = 2.0, 0.1            # výchozí rozestup v sekundách
 LIMITY = {                           # konec názvu webu: (dotaz, obrázek)
@@ -122,6 +124,26 @@ def _skupina(host):
 
 def je_obrazek(url):
     return bool(OBRAZEK_RE.search(url or ""))
+
+
+class PresmerovaniPortalu(HTTPRedirectHandler):
+    """Textový dotaz smí pokračovat jen na HTTPS adresu téhož portálu."""
+
+    def __init__(self, hosty):
+        self.hosty = hosty
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        dst = urlsplit(newurl)
+        if dst.scheme != "https" or dst.netloc.lower() not in self.hosty:
+            raise HTTPError(req.full_url, code, "Přesměrování mimo portál", headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def text_portalu(url, *dalsi_hosty):
+    req = Request(url, headers={"User-Agent": UA, "Accept-Language": "cs"})
+    opener = build_opener(PresmerovaniPortalu((urlsplit(url).netloc, *dalsi_hosty)))
+    with opener.open(req, timeout=60) as response:
+        return response.read().decode("utf-8", errors="replace")
 
 
 class _Zamek:

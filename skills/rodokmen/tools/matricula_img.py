@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Najdi popisky snímků a rejstříky v uloženém zdrojovém HTML Matriculy."""
 import argparse
+from html import unescape
 import json
 from pathlib import Path
 import re
@@ -10,13 +11,14 @@ from urllib.parse import urlsplit, urlunsplit
 def popisky(text):
     """Pole labels je v pořadí snímků. Prázdný popisek nesmí posunout číslování."""
     decoder = json.JSONDecoder()
-    for match in re.finditer(r'"labels"\s*:\s*(?=\[)', text):
-        try:
-            labels, _ = decoder.raw_decode(text, match.end())
-        except ValueError:
-            continue
-        if labels and all(label is None or isinstance(label, str) for label in labels):
-            return [label or "" for label in labels]
+    for source in dict.fromkeys((text, unescape(text))):
+        for match in re.finditer(r'"labels"\s*:\s*(?=\[)', source):
+            try:
+                labels, _ = decoder.raw_decode(source, match.end())
+            except ValueError:
+                continue
+            if labels and all(label is None or isinstance(label, str) for label in labels):
+                return [label or "" for label in labels]
     raise ValueError("Chybí pole labels. Ulož zdrojové HTML stránky knihy.")
 
 

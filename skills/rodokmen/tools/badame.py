@@ -14,8 +14,7 @@ se už objevuje její web. Do volitelného `docs/zdroje_badame.md` patří celé
 Šetrnost: síť jde přes brzdu tools/slusne.py; stažená stránka zůstane v pracovni/badame/ a bez --znovu se
 znovu nestahuje.
 """
-import argparse, glob, hashlib, html as _html, json, os, re, sys, urllib.parse, urllib.request
-from urllib.error import HTTPError
+import argparse, glob, hashlib, html as _html, json, os, re, sys, urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = "https://badame.cz/"
@@ -151,21 +150,10 @@ def texty_projektu():
     return texty
 
 
-class PresmerovaniBadame(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        dst = urllib.parse.urlsplit(newurl)
-        if dst.scheme != "https" or dst.netloc.lower() not in ("badame.cz", "www.badame.cz"):
-            raise HTTPError(req.full_url, code, "Přesměrování mimo Bádáme.cz", headers, fp)
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
 def _stahni(url):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import slusne  # noqa: F401 – brzda proti zablokování (společný limit dotazů)
-    req = urllib.request.Request(url, headers={"User-Agent": slusne.UA, "Accept-Language": "cs"})
-    opener = urllib.request.build_opener(PresmerovaniBadame())
-    with opener.open(req, timeout=60) as r:
-        return r.read().decode("utf-8", errors="replace")
+    import slusne
+    return slusne.text_portalu(url, "www.badame.cz")
 
 
 def _zapis(cesta, text):

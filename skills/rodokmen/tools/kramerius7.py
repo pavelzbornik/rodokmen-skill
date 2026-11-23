@@ -23,7 +23,6 @@ import re
 import sys
 import urllib.error
 import urllib.parse
-import urllib.request
 
 KNIHOVNY = {"jvk": "https://kramerius.cbvk.cz"}
 POLE = ("pid,model,title.search,root.title,root.pid,date.str,accessibility,"
@@ -131,10 +130,8 @@ def _api(knihovna):
 
 def _stahni(url):
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import slusne  # noqa: F401 – společná brzda proti zablokování archivem
-    req = urllib.request.Request(url, headers={"User-Agent": slusne.UA, "Accept-Language": "cs"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read().decode("utf-8", errors="replace")
+    import slusne
+    return slusne.text_portalu(url)
 
 
 def _hledani(p, knihovna):

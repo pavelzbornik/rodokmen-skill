@@ -35,27 +35,39 @@ def udaje(p):
     hints = p["research"]
     person = hints["person"]
     events = hints["events"]
-    narozeni = events.get("BIRT", events.get("CHR", ["", ""]))
-    umrti = events.get("DEAT", events.get("BURI", ["", ""]))
-    roky = re.findall(r"\b\d{4}\b", person.get("y") or "")
-    by = rok(p.get("birth")) or (int(roky[0]) if roky else rok(narozeni[0]))
-    dy = rok(umrti[0]) or (int(roky[1]) if len(roky) == 2 else None)
-    odkud, kam = obec(narozeni[1]), obec(umrti[1])
+    narozeni = events.get("BIRT", ["", ""])
+    krest = events.get("CHR", ["", ""])
+    umrti = events.get("DEAT", ["", ""])
+    pohreb = events.get("BURI", ["", ""])
+    roky = person.get("y") or ""
+    od, _, do = re.sub(r"\s*([–—-])\s*", "–", roky).partition("–")
+    if od.lstrip().startswith("†"):
+        od, do = "", od
+    by = rok(p.get("birth")) or rok(od) or rok(narozeni[0] or krest[0])
+    by_priblizne = bool(not p.get("birth") and (
+        re.search(r"\b(?:asi|kolem|před|po|abt|cal|est|bef|aft|bet|from|to)\b|\?",
+                  od if rok(od) else narozeni[0], re.I)
+        or not rok(od) and not narozeni[0] and krest[0]))
+    dy = rok(umrti[0] or pohreb[0]) or rok(do)
+    odkud, kam = obec(narozeni[1] or krest[1]), obec(umrti[1] or pohreb[1])
     for fact in person.get("f", []):
         m = re.match(r"^\s*([*†])\s*(?:\d{1,2}\.\s*\d{1,2}\.\s*)?(\d{4})(?:\s+(.+))?$", fact)
         if m:
             misto = obec(m[3] or "")
             if m[1] == "*":
                 by, odkud = int(m[2]), misto or odkud
+                by_priblizne = "?" in fact
             else:
                 dy, kam = int(m[2]), misto or kam
     resi = events.get("RESI", ["", ""])
-    return dict(by=by, dy=dy, rodiste=odkud, umrti=kam, bydleni=(rok(resi[0]), obec(resi[1])))
+    return dict(by=by, by_priblizne=by_priblizne, dy=dy, rodiste=odkud, umrti=kam,
+                bydleni=(rok(resi[0]), obec(resi[1])))
 
 
 def vyber_snapshot(cesty):
     """Úspěšné čtení se počítá i s prázdným výsledkem a může pocházet z různých importů."""
     channels = {"zdroje": set(), "shody záznamů": set(), "shody MyHeritage": set()}
+    targets = defaultdict(set)
     fields = (("zdroje", "sources", list), ("shody záznamů", "record_matches", (dict, list)),
               ("shody záznamů", "record_matches_read", str), ("shody MyHeritage", "myheritage", dict),
               ("shody MyHeritage", "myheritage_read", str))
@@ -69,6 +81,21 @@ def vyber_snapshot(cesty):
             if isinstance(data, dict):
                 channels[channel].update(pid for pid, value in data.items()
                                          if isinstance(value, valid) and (not isinstance(value, str) or value.strip()))
+        merged = snap.get("merged")
+        if isinstance(merged, dict):
+            for original, target in merged.items():
+                if isinstance(target, str) and fs_sync.PID.fullmatch(target):
+                    targets[original].add(target)
+    merged = {original: next(iter(new)) for original, new in targets.items() if len(new) == 1}
+    for original in merged:
+        target, seen = original, set()
+        while target in merged and target not in seen:
+            seen.add(target)
+            target = merged[target]
+        if target not in targets:
+            for read in channels.values():
+                if target in read:
+                    read.add(original)
     return {name: ids for name, ids in channels.items() if ids or name == "zdroje"}
 
 
@@ -129,6 +156,8 @@ def navrh_scitani(key, p, people, udalosti, deti, ctene):
 
 
 def stav(people, zaznamy, snapshot, fary, *, bez_scitani=False):
+    if not isinstance(fary, dict) or any(not isinstance(value, dict) for value in fary.values()):
+        raise ValueError('data/fary.json musí mít tvar {"obec": {"fara": "název"}}.')
     records = {r["klic"]: r for r in zaznamy}
     deti, vazby = defaultdict(list), defaultdict(set)
     for key, p in people.items():
@@ -164,7 +193,8 @@ def stav(people, zaznamy, snapshot, fary, *, bez_scitani=False):
             kroky.append((3, "; ".join(f"{year}: {place}" for year, place in scitani)))
         fara = fary.get(rodiste, {}).get("fara")
         if not has_birth_record and by and fara:
-            kroky.append((4, f"křest {by}: {rodiste}, fara {fara}"))
+            priblizne = "okolo " if udalosti[key]["by_priblizne"] else ""
+            kroky.append((4, f"křest {priblizne}{by}: {rodiste}, fara {fara}"))
         if not kroky:
             kroky.append((5, "zatím bez další stopy"))
         skupina = ("predci" if key in prima else "pokrevni" if key in pokrevni else

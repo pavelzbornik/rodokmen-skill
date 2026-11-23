@@ -61,13 +61,22 @@ def test_badame_ulozi_stranku_a_cizi_odkazy_jen_vypise(tool, monkeypatch, tmp_pa
     assert requests == ["https://badame.cz/", "https://badame.cz/test/"]
 
 
-def test_badame_neotevre_presmerovani_mimo_rozcestnik(tool):
-    badame = tool("badame")
-    redirect = badame.PresmerovaniBadame()
-    request = Request("https://badame.cz/test/")
-    with pytest.raises(HTTPError, match="mimo Bádáme.cz"):
+@pytest.mark.parametrize("host", ["badame.cz", "genealogie.taby.cz", "kramerius.cbvk.cz"])
+def test_nastroj_neotevre_presmerovani_mimo_portal(tool, host):
+    slusne = tool("slusne")
+    redirect = slusne.PresmerovaniPortalu((host,))
+    request = Request(f"https://{host}/test/")
+    with pytest.raises(HTTPError, match="Přesměrování mimo portál"):
         redirect.redirect_request(request, None, 302, "", {}, "https://example.org/")
-    assert redirect.redirect_request(request, None, 302, "", {}, "https://www.badame.cz/test/").host == "www.badame.cz"
+    assert redirect.redirect_request(request, None, 302, "", {}, f"https://{host}/dalsi/").host == host
+
+
+def test_badame_vse_omezi_pocet_stran(tool, monkeypatch, tmp_path):
+    badame = tool("badame")
+    monkeypatch.setattr(badame, "SLOZKA", str(tmp_path))
+    monkeypatch.setattr(badame, "stranka", lambda n, **kwargs: dict(strana=n, polozky=[], dalsi=n + 1))
+    result = badame.vse(od=4, nejvys=2)
+    assert result == {"strany": [4, 5], "polozky": [], "dalsi": 6}
 
 
 def test_kramerius_hledani_a_ocr(tool, monkeypatch):
@@ -81,6 +90,8 @@ def test_kramerius_hledani_a_ocr(tool, monkeypatch):
     assert filters["q"] == 'text_ocr:"zkušební list"'
     assert filters["fq"] == ("model:page AND accessibility:public AND "
                              "date_range_start.year:[* TO 1910] AND date_range_end.year:[1900 TO *]")
+    title = k7.parametry_hledani("mapa obce", model="map", nazvy=True)
+    assert (title["q"], title["fq"], title.get("hl")) == ('title.search:"mapa obce"', "model:map", None)
     requests = []
 
     def fetch(url):
@@ -107,6 +118,17 @@ def test_forum_ukonci_hledani_pri_limitu(tool, monkeypatch):
     with pytest.raises(ValueError, match="limit"):
         forum.hledej("Příklad")
     assert len(requests) == 1
+
+
+def test_forum_nepovazuje_text_prispevku_za_limit(tool, monkeypatch):
+    forum = tool("forum_genealogie")
+    html = """
+        Vyhledáváním bylo nalezeno 1 výsledků
+        <div class="search post bg1"><h3><a href="./viewtopic.php?p=1">Zkušební příspěvek</a></h3>
+        <div class="content">Proč zemřel tak brzy?</div></div>
+    """
+    monkeypatch.setattr(forum, "_stahni", lambda url: html)
+    assert forum.hledej("Příklad")["vysledky"][0]["ukazka"] == "Proč zemřel tak brzy?"
 
 
 def test_forum_cache_rozlisuje_dotaz_a_rozsah(tool, monkeypatch, tmp_path):
@@ -169,3 +191,36 @@ def test_pokryti_nepovazuje_ztraceny_kanal_snapshotu_za_splneny(tool):
     assert coverage.rozdil(before, missing)["splnene_kroky"] == []
     after = coverage.stav(people, [], {"zdroje": {"AAAA-BBB"}, "shody záznamů": {"AAAA-BBB"}}, {})
     assert coverage.rozdil(before, after)["splnene_kroky"] == ["Zkušební osoba: čtení na FamilySearch"]
+
+
+def test_pokryti_doplni_rok_krtu_k_rodisti_gedcomu(tool):
+    coverage = tool("pokryti")
+    p = dict(research=dict(person={}, events={"BIRT": ["", "Obec A"], "CHR": ["ABT 1880", "Fara B"],
+                                              "DEAT": ["", "Obec C"], "BURI": ["1940", "Fara D"]}))
+    row = coverage.udaje(p)
+    assert (row["by"], row["rodiste"], row["dy"], row["umrti"]) == (1880, "Obec A", 1940, "Obec C")
+    assert row["by_priblizne"] is True
+
+
+def test_pokryti_vysvetli_spatny_format_far(tool):
+    coverage = tool("pokryti")
+    with pytest.raises(ValueError, match=r"data/fary\.json"):
+        coverage.stav({}, [], {}, {"Obec A": "Fara B"})
+
+
+def test_pokryti_pouzij_cile_slouceni_ze_snapshotu(tool, tmp_path):
+    coverage = tool("pokryti")
+    snapshot = tmp_path / "snapshot-test.json"
+    snapshot.write_bytes(json.dumps(dict(schema="rodokmen.fs-snapshot.v1", persons={},
+                                         sources={"BBBB-CCC": []}, merged={"AAAA-BBB": "BBBB-CCC"})).encode())
+    channels = coverage.vyber_snapshot([snapshot])
+    assert channels["zdroje"] == {"AAAA-BBB", "BBBB-CCC"}
+
+
+def test_matricula_cte_escapovane_popisky_a_odmita_cizi_adresu(tool):
+    matricula = tool("matricula_img")
+    html = '<div data-config="{&quot;labels&quot;:[null,&quot;Index [N]&quot;]}"></div>'
+    assert list(matricula.strany(html, "https://data.matricula-online.eu/de/test/", jen_rejstriky=True)) == [
+        (2, "Index [N]", "https://data.matricula-online.eu/de/test/?pg=2")]
+    with pytest.raises(ValueError, match="Matricula|matricula"):
+        list(matricula.strany(html, "https://data.matricula-online.eu.example.org/de/test/"))

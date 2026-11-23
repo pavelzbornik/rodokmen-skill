@@ -24,6 +24,7 @@ rodinná data, proto je nech v `pracovni/`.
 2. U mapované osoby zkontroluj připojené zdroje a případné nepřečtené shody. Použij
    [import snapshotu](fs-sync.md) a pak znovu spusť `ukoly`. Čtení z více importů se sčítá. Úspěšný dotaz
    bez výsledků se počítá jako přečtený. Volitelné kanály shod se sledují, když některý import obsahuje jejich čtení.
+   Po sloučení osob se zohlední i čtení pod cílovým ID. Místní mapování se tím nepřepisuje.
 3. Prověř sčítání, pokud známá událost nebo domácnost ukazuje, kde osoba mohla v daném roce žít. Nástroj používá
    roky 1869, 1880, 1890, 1900, 1910 a 1921 pro české země. Dostupnost ověř pro konkrétní obec a archiv.
    Mimo toto území můžeš návrhy vypnout pomocí `--bez-scitani`.
