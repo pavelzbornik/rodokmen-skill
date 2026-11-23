@@ -5,6 +5,158 @@ Změny ve skillu rodokmen, nejnovější verze nahoře. Vydání původního ski
 
 Projekt založený starší verzí Claude sám nabídne aktualizovat (pozná to podle souboru `VERZE`).
 
+## 0.10.2 – 16. 11. 2026
+
+**Odnož (23. 11. 2026)**
+- Přebírá verzi 0.10.2 původního skillu včetně oprav šablony webu a instalátoru. Obsahuje dál synchronizaci
+  s FamilySearch, přehled úkolů a pomůcky pro výzkum a koncepty e-mailů.
+- Kontrola verzí sleduje hlavní větev odnože. Zápisy do JSON používají společný zámek a vyžadují potvrzení
+  přepsání, pokud by se tím ztratilo některé pole.
+
+Opravná verze: bezpečnější založení a aktualizace projektu, správný požadavek na Node a pravidla, aby chybné „není
+tam“ od pomocníka neschovalo předka.
+
+**Opravy**
+- Založení a aktualizace projektu už nemůžou zapsat mimo projekt, když je `.claude/` nebo `.skill_verze` symbolický
+  odkaz jinam (#193). Komentář v hlídači sítě, který skener Hermes Agent mylně bral jako nebezpečný kód, je
+  přeformulovaný.
+- Web potřebuje Node 22.12 nebo novější (Astro 7) – návod chtěl jen Node 20 a s ním web nešel sestavit. `npm run data`
+  teď starší Node hned srozumitelně ohlásí.
+- `kontrola.py` upozorní na hypotézu (`HYPOTEZY`) zapsanou jinak než `dict(…)` – export webu na ní padal.
+- Brzda už nezastaví celý Kramerius na hodiny kvůli HTTP 403 u neveřejného díla (OCR, stránky, obrázky) – to není
+  blokace, dílo jen není volně dostupné.
+
+**Návody**
+- Záporný výsledek pomocníka („prošel jsem snímky 20–60, není tam“) Claude přijme jen s dokladem – první a poslední
+  jméno a data z každého snímku, čtené ve zvětšení – a v deníku rozliší úsek prošlý s dokladem a jen orientačně.
+  Chybné „není“ dřív mohlo předka schovat natrvalo.
+
+## 0.10.1 – 13. 11. 2026
+
+Hlavní změna: **ZA Opava a SOA Praha omezily automatizovaný přístup.** ZA Opava od listopadu nepouští nástroje ani
+k obrázkům a na úvodní stránce upozorňuje na limity provozu. SOA Praha oznámila „automatizovaná bezpečnostní opatření
+a limity“ v eBadatelně. Obě badatelny dál fungují v prohlížeči tempem člověka – ověřil jsem to 13. 11. – a návody
+podle toho upravil. U Opavy je nově doporučený prohlížeč Playwright, protože jen v něm jde uložit celý snímek.
+
+**Nové**
+- ZA Opava: celý snímek přes Playwright. Prohlížeč snímků stránku sám přiblíží a projde, úryvek z dlaždic, které
+  přitom načetl, složí celý snímek – archiv nedostane žádný dotaz navíc a snímek se dál čte z disku. Uloží se do
+  sdílené mezipaměti, takže se stejný snímek podruhé neotvírá (#191).
+- `zapis.py --prepsat` nahradí položku celou, i když náhrada některá pole nemá.
+
+**Opravy**
+- ZA Opava: `soal_zoomify.py` pro Opavu skončí srozumitelnou hláškou s náhradním postupem a brzda skripty na archiv
+  zastaví – dřív končil výpisem chyby na HTTP 404 a návod ho pořád doporučoval (#191). Pro SOA Litoměřice nástroj
+  funguje dál.
+- Lokální web: `npm run nahled` už nehlásí „Another astro preview server is already running“, když běží náhled, který
+  pustil Claude (#186).
+- `zapis.py` už tiše nepřepíše existující položku kratší verzí – když by se ztratila pole (třeba podrobný seznam obcí
+  svazku), nic nezmění a vypíše je.
+- `kontrola.py` nově upozorní na překlad uložený pod jiným klíčem než `cs` (na webu se nezobrazil), na rodinný
+  dokument bez výřezu (na webu chyběl) a na chybně zapsanou položku `ISSUES`, na které spadl export webu.
+- `napady.py` nebere „† před 6/1919“ jako úmrtí v roce 1919 – už nevymýšlí španělskou chřipku ani dlouhověkost.
+- `ramecek.py` bez výřezu nespadne a nic nezapíše; `anno_snap.py` srozumitelně ohlásí, že dotaz v čísle novin nemá shodu.
+- Kontrola nové verze najde skill nainstalovaný k účtu v aplikaci Claude desktop i z kopie v projektu.
+
+**Návody**
+- SOA Praha: co dělat, když eBadatelna omezí i prohlížeč – skončit a čtení předat uživateli (#190).
+- ZA Opava: denní limit asi 50 snímků (po prvním odmítnutí ten den skončit), „Server Exception“ hned po CAPTCHA
+  limit není, žádné `fetch` na stránce. Matriky ZA Opava a pozemkové knihy Opavy a Olomouce jsou i na FamilySearch
+  v plném rozlišení – jak svazky spárovat a proč nikdy nepočítat s odhadnutým posunem snímků.
+
+## 0.10.0 – 10. 11. 2026
+
+Hlavní novinka: **přepracované návody.** SKILL.md, který Claude čte v každém sezení, je o třetinu kratší – podrobnosti
+k instalaci a importu stromu jsou v samostatných návodech, které čte, až je potřebuje. Anglickou metodickou příručku
+nahradila česká `metodika.md`: spojování záznamů, ztotožnění osob, co dělat, když se hledání zasekne, a prameny
+na Slovensku, v Rakousku, Polsku, Německu a Maďarsku. Pravidla, na kterých stojí kvalita, zůstala beze změny.
+
+**Nové**
+- Dva rodokmeny na jednom účtu Cloudflare: název webu jde nastavit v `web.json` (`cloudflare.web`, výchozí zůstává
+  „rodokmen“). Nasazení nově nepřepíše web jiného projektu – když na účtu web stejného jména už je, zastaví se a poradí.
+- Úvodní stránka webu na mobilu ukazuje jen vějíř (dřív vějíř i rodokmen pod sebou).
+- Vějíř: přibližování kolečkem je úměrné posunu, takže na touchpadu notebooku už neskáče (#165).
+- `zapis.py odkaz` přidá k osobě v `osoby.py` odkaz na zápis bez rizika rozbitých uvozovek.
+- Staré mapy z archivu ČÚZK: návod na ostrý výřez vsi z indikační skici ve vysokém rozlišení.
+
+**Opravy**
+- Windows: zápis dat přes vstup (`zapis.py … -`) už tiše nerozbíjí češtinu; nasazení na Cloudflare funguje i ze složky
+  s mezerou v cestě a kontrola soukromí webu na Netlify konečně proběhne. Prosím o zpětnou vazbu, na Windows jsem to
+  zkoušel jen nepřímo.
+- Brzda proti zablokování archivem chytí i adresu bez `https://`, víc adres nebo rozsah `[1-200]` v jednom `curl`
+  a vlastní výpis stavového kódu – dřív tudy mohly odejít dávky dotazů a odmítnutí archivu nezastavilo další.
+- ZA Opava: snímky se stahují pomaleji a při odmítnutí se nástroj zastaví místo opakování – po několika snímcích
+  rychle za sebou archiv blokoval.
+- Hlídač sítě nezamítá nevinné příkazy (text v uvozovkách v commitu nebo poznámce, `grep` vedle Pythonu).
+- Export webu nespadne na zástupné osobě bez jména, na opakovaném předkovi odkazujícím na neznámou osobu, na dokumentu
+  bez popisu ani na číselné odpovědi na přihlašovací otázku; dva rody stejného jména se na webu objeví oba.
+- Import rodinného stromu (GEDCOM) zvládne soubory v UTF-16 a sdílené poznámky a nezasekne se na chybě ve stromu.
+- `mista.py pridej` s novým dotazem obec znovu vyhledá – oprava stejnojmenné obce na mapě (#167).
+- Matricula: prošlý odkaz už neuloží chybovou stránku jako snímek.
+- Soubory dat s neviditelnou značkou BOM z Windows (Poznámkový blok, PowerShell) už nástroje neshodí.
+- Nástroje na `--help` a bez argumentů vypíšou nápovědu místo pádu (#157).
+
+**Návody**
+- Matriční úřad: zápis starší 100 / 75 / 30 let vydá komukoli i ze svazku, který je ještě na úřadě; mladší jen rodina
+  (§ 25b zákona o matrikách). Na Slovensku platí jiná pravidla (#150).
+- Pozemkové knihy jsou online i u SOA Třeboň a ZA Opava; doplněný slovníček latinských a německých výrazů.
+- Starší projekt se zapnutým hlídačem sítě se o nové verzi dozví i tehdy, když hlídač kontrolu zamítne.
+
+Děkuji všem za podrobné poznámky z praxe a za hotové návrhy oprav.
+
+## 0.9.2 – 7. 11. 2026
+
+**Opravy**
+- Kontrola nové verze z 0.9.1 u některých lidí neproběhla: hlídač sítě ji zablokoval (teď pustí skript, který se ptá
+  jen GitHubu) a kopie nástroje v projektu nenašla nainstalovaný skill (teď ho najde, a když ne, netvrdí „aktuální“).
+  U ručně nakopírovaného skillu radí stáhnout novou verzi z GitHubu místo příkazů pro plugin (#136).
+- Windows: hlídač sítě se po aktualizaci projektu nemusel spustit – v nastavení byl jen příkaz `python`, který
+  v prostředí Claude Code může vést na nefunkční zástupce z Microsoft Store. Teď je tam vždy plná cesta k Pythonu.
+- `npm install` ve `web/` už nehlásí závažnou zranitelnost (knihovna `undici`, používá ji jen sestavení webu).
+
+**Návody**
+- MZA Brno: snímky přes Playwright, ne vestavěný prohlížeč Claude desktop (dostává 403 i po pauze). Bílý snímek
+  s chybou 403 je blokace, ne pomalé načítání – Claude přestane a řekne to (#147).
+
+Děkuji všem za rychlá hlášení e-mailem i na GitHubu.
+
+## 0.9.1 – 6. 11. 2026
+
+**Nové**
+- Kontrola nové verze i proti GitHubu: Claude na začátku konverzace zjistí, jestli nevyšla novější verze, než je
+  nainstalovaná (nejvýš jednou denně), a poradí, jak skill aktualizovat. Dřív to poznal, jen když se kopie skillu
+  aktualizovala sama, a to se u některých instalací děje se zpožděním hodin až dnů (#98).
+
+**Opravy**
+- Aktualizace projektu odmítne starší kopii skillu, než ze které projekt vznikl – projekt se tak nevrátí ke staré verzi.
+
+## 0.9.0 – 6. 11. 2026
+
+Hlavní novinka: **rodinný web se nově zveřejňuje na Cloudflare.** Nasazování i přenos jsou zdarma bez limitu,
+takže web jde aktualizovat kdykoli (bezplatný Netlify vystačí jen na zhruba 20 nasazení měsíčně).
+
+**Nové**
+- **Zveřejnění na Cloudflare (výchozí).** Uživatel si jen založí účet a v prohlížeči klikne na „Allow“, zbytek
+  udělá Claude: navrhne adresu podle rodu (`https://rodokmen.novakovi.workers.dev`), předem ověří, že je volná,
+  a web nasadí příkazem `npm run nasadit-cloudflare`. Rodinná otázka chrání stránky i fotky, kontrola po nasazení
+  počká, až se nová adresa rozšíří, a ověří, že web bez přihlášení ukáže otázku (#50, #67).
+- Kdo má web na Netlify, nic měnit nemusí – `npm run nasadit` funguje dál. Claude teď ale po zveřejnění nenasazuje
+  po každém kole, jen na pokyn nebo jednou na konci sezení, a hlášku „Forbidden“ vysvětlí jako vyčerpané kredity (#54).
+
+**Opravy**
+- Vlastní server (Docker, CapRover): nginx kvůli přihlašovací otázce vůbec nenastartoval (chyba 502), u otevřeného
+  webu padal na dvojí `default`. Image je nově `nginx:stable-alpine` (#56, #61).
+- Odpověď na přihlašovací otázku jen z azbuky nebo symbolů: nasazení teď řekne proč, místo „není odpověď“.
+- Hlavička `SKILL.md` je platný YAML – hlásil ji jako chybnou GitHub i GitHub Copilot (#131).
+- Indikační skici stabilního katastru: v budově je červeně číslo popisné a černě číslo stavební parcely, ne
+  naopak (#132).
+
+**Návody**
+- Vlastní server: úklid starého image po přestavbě, příprava webu bez Node.js, přihlášení jen přes https,
+  za reverse proxy subdoména místo podadresáře.
+
+Děkuji všem, kdo poslali poznámky a opravy – hlavně za zkušenosti s Cloudflare a Dockerem.
+
 ## 0.8.3-pavel.2 – 23. 11. 2026
 
 - Místní seznam úkolů pro výzkum využívá údaje projektu, volitelný GEDCOM a místní importy z FamilySearch.

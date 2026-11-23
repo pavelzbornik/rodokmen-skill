@@ -69,10 +69,15 @@ VLAKNA = soubor("vlakna.py",
                 "import sys, urllib.request, concurrent.futures as cf\n"
                 "with cf.ThreadPoolExecutor(8) as ex:\n"
                 "    list(ex.map(lambda u: urllib.request.urlopen(u, timeout=10).read(), sys.argv[1:]))\n")
-OPAVA = soubor("opava.py",   # digi.archives.cz přesměrovaný na lokální server (jen v tomto procesu)
-               "import socket, sys, urllib.request\n_g = socket.getaddrinfo\n"
-               "socket.getaddrinfo = lambda h, *a, **k: _g('127.0.0.2' if h.endswith('archives.cz') else h, *a, **k)\n"
-               "for u in sys.argv[1:]:\n    print(urllib.request.urlopen(u, timeout=10).status, flush=True)\n")
+BLOK = soubor("blok.py",  # testovací web i Opava míří na lokální server jen v tomto procesu
+              f"import socket, sys, urllib.request\nsys.path.insert(0, {TOOLS!r})\nimport slusne\n"
+              "host = 'archiv.example.test'\n"
+              "slusne.LIMITY[host] = slusne.LIMITY['archives.cz']\n"
+              "slusne.BAN_TEXT[host] = slusne.BAN_TEXT['archives.cz']\n"
+              "_g = socket.getaddrinfo\n"
+              "socket.getaddrinfo = lambda h, *a, **k: _g('127.0.0.2', *a, **k)\n"
+              "opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\n"
+              "for u in sys.argv[1:]:\n    print(opener.open(u, timeout=10).status, flush=True)\n")
 vysledky = []
 
 
@@ -206,12 +211,19 @@ r = spust(["bash", sh2, A], e)
 check("slusne.py bash: 429 z curl ve skriptu zastaví další dotazy", not zaznamy(t0, "/api?po="),
       f"kód {r.returncode}, druhý curl {'NEodešel' if not zaznamy(t0, '/api?po=') else 'ODEŠEL'}")
 
-# 8) stránka „zablokováno“ s kódem 200 (ZA Opava) a limit 4 s pro archives.cz
+# 8) Opava je jen v prohlížeči. Limit 4 s a blokovací stránku ověří testovací web.
 e = stav("s8"); t0 = time.time()
-r = spust([OPAVA, f"http://digi.archives.cz:{PA}/api?o=1", f"http://digi.archives.cz:{PA}/api?o=2",
-           f"http://digi.archives.cz:{PA}/blocked", f"http://digi.archives.cz:{PA}/api?o=po"], e)
+r = subprocess.run(PY + [BLOK, f"http://digi.archives.cz:{PA}/api?opava"], env=e,
+                   capture_output=True, text=True, encoding="utf-8")
+check("ZA Opava: skript skončí před dotazem na archiv", r.returncode == KOD and "ZA Opava" in r.stderr
+      and not zaznamy(t0), f"kód {r.returncode}")
+
+web = f"http://archiv.example.test:{PA}"
+t0 = time.time()
+r = subprocess.run(PY + [BLOK, web + "/api?o=1", web + "/api?o=2", web + "/blocked", web + "/api?o=po"],
+                   env=e, capture_output=True, text=True, encoding="utf-8")
 z = rozestupy(zaznamy(t0, "/"))
-check("archives.cz: limit 4 s a stránka „zablokováno“ (200)", r.returncode == KOD and len(z) == 2 and all(x >= 3.9 for x in z),
+check("limit 4 s a stránka „zablokováno“ (200)", r.returncode == KOD and len(z) == 2 and all(x >= 3.9 for x in z),
       f"kód {r.returncode}, rozestupy {z} s, po stránce „zablokováno“ už nic")
 
 # 9) 3 nepovedená spojení za sebou (zavřený port na 127.0.0.4)

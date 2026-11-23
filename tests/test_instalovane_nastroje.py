@@ -1,9 +1,12 @@
 """Ověří nástroje v projektu vytvořeném skutečnou šablonou skillu."""
 import json
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 from urllib.parse import parse_qs, urlsplit
+from urllib.request import Request
+import urllib.request
 
 import pytest
 
@@ -145,3 +148,46 @@ def test_pokryti_s_gedcomem_a_importovanym_snapshotem(projekt):
     assert changes["nove_zapisy"] == ["Jméno z poznámek"]
     assert "Jméno z poznámek: sčítání 1880" in changes["splnene_kroky"]
     assert len(list(report.parent.glob("*.json"))) == 1
+
+
+def test_kontrola_verze_sleduje_fork(monkeypatch, tmp_path, capsys):
+    """Upstream a fork mají vlastní verze na GitHubu i při sdílení adresáře mezipaměti."""
+    verze = SKILL / "tools/verze.py"
+    assert verze.is_file(), "Chybí nástroj kontroly verze"
+    monkeypatch.setattr(sys, "argv", [str(verze), str(tmp_path)])
+    monkeypatch.setenv("RODOKMEN_CACHE", str(tmp_path))
+    monkeypatch.delenv("RODOKMEN_VERZE_URL", raising=False)
+    cache = tmp_path / "rodokmen_verze.json"
+    cache.write_bytes(b'{"cas": 9999999999, "verze": "0.99.0"}')
+    (tmp_path / ".skill_verze").write_bytes(b"0.8.3-pavel.2\n")
+    requests = []
+
+    def version_response(request, timeout):
+        from io import BytesIO
+
+        assert isinstance(request, Request)
+        requests.append(request.full_url)
+        return BytesIO(b"0.10.2\n")
+
+    monkeypatch.setattr(urllib.request, "urlopen", version_response)
+    runpy.run_path(str(verze), run_name="__main__")
+    assert requests == ["https://raw.githubusercontent.com/pavelzbornik/rodokmen-skill/main/skills/rodokmen/VERZE"]
+    assert "AKTUALIZUJ_PROJEKT" in capsys.readouterr().out
+    assert json.loads(cache.read_text(encoding="utf-8"))["verze"] == "0.10.2"
+
+
+def test_zapis_zachova_pole_pokud_uzivatel_nepotvrdi_prepsani(projekt):
+    path = projekt / "data/svazky.json"
+    original = b'{"test": {"nazev": "Test", "popis": "Popis"}}\n'
+    path.write_bytes(original)
+    source = projekt / "pracovni/svazek.json"
+    source.write_bytes(b'{"nazev": "Novy nazev"}\n')
+    tool = projekt / "tools/zapis.py"
+    result = subprocess.run([sys.executable, "-I", "-X", "utf8", str(tool), "svazky", "test", str(source)],
+                            capture_output=True, encoding="utf-8")
+    assert result.returncode != 0 and "--prepsat" in result.stderr
+    assert path.read_bytes() == original
+    run(tool, "svazky", "test", source, "--sloucit")
+    assert json.loads(path.read_text(encoding="utf-8"))["test"] == {"nazev": "Novy nazev", "popis": "Popis"}
+    run(tool, "svazky", "test", source, "--prepsat")
+    assert json.loads(path.read_text(encoding="utf-8"))["test"] == {"nazev": "Novy nazev"}

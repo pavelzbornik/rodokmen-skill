@@ -11,10 +11,10 @@ Vznikl při skutečném hledání předků jedné rodiny.
 
 Autorem původního skillu je Jindřich Šaršon ([sarsonj@gmail.com](mailto:sarsonj@gmail.com), [GitHub](https://github.com/sarsonj)).
 
-**Aktuální verze odnože je 0.8.3-pavel.2 (23. 11. 2026).** Přidává [přehled úkolů pro výzkum](skills/rodokmen/reference/vyzkum.md)
-a nové pomůcky pro Matriculu, Kramerius 7, Bádáme.cz a genealogické fórum. Obsahuje i
+**Aktuální verze odnože je 0.10.2 (srovnána s původním skillem 23. 11. 2026).** Obsahuje [přehled úkolů pro výzkum](skills/rodokmen/reference/vyzkum.md),
+pomůcky pro Matriculu, Kramerius 7, Bádáme.cz a genealogické fórum,
 [synchronizaci s FamilySearch](skills/rodokmen/reference/fs-sync.md) a [odkazy na předvyplněné e-maily](skills/rodokmen/reference/zadosti.md).
-Postup najdete v části [Instalace](#instalace).
+Postup najdete v části [Instalace](#instalace) a přehled změn v [CHANGELOG.md](CHANGELOG.md).
 
 Pro Rakousko použijte [Matriculu](skills/rodokmen/reference/portaly.md#matricula)
 na matriky a jejich rejstříky a [ANNO](skills/rodokmen/reference/portaly.md#noviny-a-ročenky) na noviny a vojenské seznamy ztrát.
@@ -64,15 +64,15 @@ s přepisem a překladem, „Co hledáme“ a deník hledání. **[Podívejte se
   Tyto archivy stahovací nástroje nepouštějí, Claude proto čte matriky přímo v jejich prohlížeči. Instalace
   v Claude Code: `/plugin install playwright@claude-plugins-official`, pak restart. Bez něj můžete Claudovi
   posílat snímky obrazovky sami.
-- Volitelně účet na [Netlify](https://www.netlify.com) (zdarma), pokud chcete web zveřejnit pro rodinu.
+- Volitelně účet na [Cloudflare](https://www.cloudflare.com) (zdarma, založíte ho při zveřejnění), pokud chcete web zveřejnit pro rodinu.
 
 ## S jakými modely to vzniklo
 AI se vyvíjí rychle a za pár měsíců může skill dávat lepší, nebo jen jiné výsledky. Proto je tu uvedeno, s čím byl
 vyzkoušený.
 
-- **Stav původního skillu k 5. 11. 2026 (verze 0.8.2):** Claude Code s hlavním modelem **Claude Opus 5.5**. Pomocníci, kteří hledají
+- **Stav původního skillu k 16. 11. 2026 (verze 0.10.2):** Claude Code s hlavním modelem **Claude Opus 5.5**. Pomocníci, kteří hledají
   a čtou matriky jako první, běží na **Claude Sonnet 5.5**. Každý jejich nález pak hlavní model ověřuje na snímku.
-- **Stav odnože k 23. 11. 2026 (verze 0.8.3-pavel.2).** Nové nástroje pro výzkum vyžadují jen Python.
+- Nástroje odnože pro výzkum vyžadují jen Python.
 - Vyzkoušeno na několika skutečných rodokmenech (největší má 243 předků v 11 generacích a 192 matričních zápisů).
   Výsledek se porovnával s větví, kterou jsme léta dělali ručně.
 
@@ -99,6 +99,8 @@ marketplace `sarsonj/rodokmen-skill`, v `/plugin` ho nejprve odeberte nebo zvolt
 
 Po aktualizaci Claude Code restartujte. Rozpracovaný projekt pak Claude při další práci sám nabídne aktualizovat
 na novou verzi (vaše data i vlastní úpravy webu a nástrojů zůstanou, změny šablony se do nich sloučí).
+Přecházíte-li z původního skillu stejné verze, po instalaci odnože jednou spusťte její
+`tools/novy_projekt.py <složka projektu>` přes Python, aby se do projektu přidaly nástroje odnože.
 
 ### Varianta B – ručně
 Stáhněte repozitář (zelené tlačítko **Code → Download ZIP** na GitHubu, nebo `git clone`) a zkopírujte složku
@@ -129,7 +131,7 @@ s vymyšlenou rodinou a spustí náhled.
 | 2. Matriky | rozhodujete sporná místa | hledá svazky, stahuje a čte zápisy, dělá výřezy, přepisy a překlady, vede deník hledání |
 | 3. Příběhy | doplníte rodinné historky, schválíte texty | průběžně sbírá zajímavosti, napíše „Příběh <vašeho rodu>“ |
 | 4. Web | díváte se a říkáte, co upravit | staví web a ukazuje náhled |
-| 5. Zveřejnění | založíte účet na Netlify, schválíte obsah | nasadí web s přihlášením rodinnou otázkou |
+| 5. Zveřejnění | založíte účet na Cloudflare (nebo Netlify), schválíte obsah | nasadí web s přihlášením rodinnou otázkou |
 
 Matriky jsou online jen do určitého data: narození starší než 100 let, sňatky 75 a úmrtí 30 let.
 O mladší údaje se žádá na matričním úřadě. Claude vám řekne, kdy to je potřeba.
@@ -138,8 +140,8 @@ O mladší údaje se žádá na matričním úřadě. Claude vám řekne, kdy to
 ```
 skills/rodokmen/
   SKILL.md           průvodce pro Clauda (fáze, pravidla)
-  reference/         podrobné návody: čtení matrik, portály archivů, formát dat, web, soukromí,
-                     metodická příručka (playbook, anglicky)
+  reference/         podrobné návody: příprava počítače, čtení matrik, portály archivů, metodika
+                     (spojování záznamů, mrtvé body, prameny mimo ČR), formát dat, web, soukromí
   tools/             nástroje v Pythonu (ARON, výřezy, rámečky, mapa, kontrola dat, export do webu, vějíř)
   template/          šablona projektu: prázdná data, ukázková rodina, web (Astro)
 .claude-plugin/      instalace jako plugin
@@ -203,18 +205,16 @@ tady v repozitáři.
 - **Kam skripty sahají:** zapisují do složky projektu rodokmenu (stažené snímky, mezivýsledky, web).
   Výjimkou jsou dočasné soubory systému, stav brzdy (pár malých souborů v `~/.cache/rodokmen_slusne`, na Windows
   v `%LOCALAPPDATA%`), mezipaměť stažených snímků (`~/.cache/rodokmen_snimky`, nejvýš 5 GB, lze kdykoli smazat),
-  npm při instalaci webu a přihlášení nástroje pro nasazení (Netlify, CapRover), pokud web zveřejňujete. Mimo
+  npm při instalaci webu a přihlášení nástroje pro nasazení (Cloudflare, Netlify, CapRover), pokud web zveřejňujete. Mimo
   projekt nic nemažou ani nepřepisují – kromě nejdéle nepoužitých snímků ve vlastní mezipaměti nad limitem.
 - **Na které servery chodí:** archivní portály (ARON SOA Zámrsk, SOA Třeboň, SOA Plzeň – Porta fontium, SOA Praha –
   eBadatelna, AHMP, Národní archiv, SOA Litoměřice, Matricula), noviny (ANNO, Kramerius), OpenStreetMap (mapa
   a souřadnice obcí) a při instalaci webu registr npm. Nové nástroje čtou veřejné stránky Bádáme.cz a fóra
   genealogie.taby.cz a veřejné API Krameria Jihočeské vědecké knihovny. Hledání na fóru a v knihovně předává zadaný dotaz.
-  Na Netlify jen tehdy, když web sami zveřejníte. Nikam jinam nic neposílají, ani vaše data, ani poznámky.
+  Na Cloudflare nebo Netlify jde obsah webu jen při zveřejnění. Kontrola verze čte číslo verze z GitHubu.
 - **Doporučení:** nechte v Claude Code zapnuté schvalování příkazů, aspoň dokud si nezvyknete, co Claude dělá.
   Obecně instalujte skilly a pluginy jen od lidí, kterým věříte. Skill nikdo předem nekontroluje a Claude se
   jeho návodem řídí.
 
 ## Licence
 Skill je pod licencí [MIT](LICENSE): smíte ho volně používat, upravovat a šířit dál, jen zachovejte uvedení autora (Jindřich Šaršon).
-Výjimkou je metodická příručka `skills/rodokmen/reference/playbook.md`. Je to převzatá rešeršní zpráva bez uvedeného
-autora, licence MIT se na ni nevztahuje (podrobnosti na začátku souboru).

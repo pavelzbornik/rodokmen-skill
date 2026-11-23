@@ -9,12 +9,13 @@ a překladem), stránka osoby, rodiny, „Co hledáme“, výzkumný deník, hle
 | příkaz | co dělá |
 |---|---|
 | `npm install` | jednou na začátku (stáhne knihovny, ~1 minuta) |
-| `npm run data` | převede data do webu (vždy po změně dat; funkční Python 3 vyhledá `scripts/data.mjs`) |
+| `npm run data` | převede data do webu (vždy po změně dat; `scripts/data.mjs` si sám najde funkční Python 3) |
 | `npm run build` | sestaví web do `dist/` |
 | `npm run nahled` | data + build + náhled na http://localhost:4321 (Ctrl+C ukončí) |
 | `npm run dev` | vývojový režim při úpravách vzhledu |
-| `npm run nasadit` | data + build + nahrání na Netlify |
-| `npm run overit` | kontrola nasazeného webu bez přihlášení (rodinná otázka × ochrana týmu Netlify) |
+| `npm run nasadit-cloudflare` | data + build + nahrání na Cloudflare (výchozí) + kontrola |
+| `npm run nasadit` | data + build + nahrání na Netlify + kontrola |
+| `npm run overit` | kontrola nasazeného webu bez přihlášení (rodinná otázka × ochrana týmu Netlify / stránka Cloudflare) |
 
 Náhled spouštěj na pozadí a uživateli pošli odkaz. Vzhled si ověř sám (snímek obrazovky přes prohlížeč, je-li k dispozici).
 
@@ -33,9 +34,10 @@ Náhled spouštěj na pozadí a uživateli pošli odkaz. Vzhled si ověř sám (
 ```
 - `kontakt.jmeno` je ve 3. pádě („Napište Petrovi na …“).
 - **Přihlášení:** otázka, na kterou zná odpověď jen rodina (ne snadno dohledatelná na sociálních sítích).
-  Odpověď se porovnává bez diakritiky a velkých písmen. Na serveru i v cookie prohlížeče je jen její otisk (SHA-256),
+  Odpověď se porovnává bez diakritiky a velkých písmen a musí obsahovat písmena nebo číslice z latinky (azbuka
+  a samotné symboly nejdou). Na serveru i v cookie prohlížeče je jen její otisk (SHA-256),
   samotná odpověď se nikam neukládá. Krátkou nebo běžnou odpověď (jméno, obec) ale jde z otisku uhádnout zkoušením,
-  proto ať ji uživatel nepoužívá jako heslo jinde. Bez odpovědi nasazení (`npm run nasadit`, `deploy-caprover`)
+  proto ať ji uživatel nepoužívá jako heslo jinde. Bez odpovědi nasazení (`npm run nasadit-cloudflare`, `nasadit`, `deploy-caprover`)
   skončí chybou; otevřený web jen výslovně přes `"otevreny": true` v `prihlaseni`.
   Je to lehká ochrana proti náhodným návštěvníkům, ne bankovní zabezpečení – citlivé věci na web nepatří.
 - `uvod.foto` = klíč obrázku ve `vyrezy/` (ulož přes `vyrez.py`).
@@ -45,7 +47,52 @@ Náhled spouštěj na pozadí a uživateli pošli odkaz. Vzhled si ověř sám (
 - `citlive_schvaleno`: seznam úryvků textu, které uživatel na webu schválil (např. `["oběsil se ve stodole"]`) –
   `kontrola.py` je pak nehlásí jako `CITLIVÉ`. Úryvek musí obsahovat hlášené slovo; když se text změní, hlásí se znovu.
 
-## Zveřejnění na Netlify (výchozí, zdarma)
+## Zveřejnění na Cloudflare (výchozí, zdarma)
+Nasazování i přenos jsou zdarma bez limitu; brána běží před každým souborem a to se počítá do 100 000 požadavků denně
+(stránka webu je asi 20–40 požadavků → tisíce zobrazení denně; po vyčerpání vrací web do půlnoci UTC chybu 429).
+1. **Účet:** nemá-li uživatel účet Cloudflare, ať si ho **nejdřív** založí na dash.cloudflare.com (zdarma, stačí e-mail)
+   a potvrdí e-mail z pošty – registrace se do dvou minut přihlášení nevejde. Až je v dashboardu přihlášený, pokračuj.
+2. **Přihlášení:** spusť sám na pozadí `cd web && npx -y wrangler@4 login` – otevře prohlížeč. Řekni uživateli:
+   „Otevře se stránka Cloudflare – klikni na **Allow**, máš na to asi 2 minuty.“ Ověření: `npx -y wrangler@4 whoami`.
+   - **„Application authorization failed / Authentication error, please login“:** prohlížeč není u Cloudflare přihlášený
+     (typicky hned po registraci, nebo jiné okno/anonymní okno). „Retry authorization“ nepomůže, když login mezitím
+     vypršel. Ať se uživatel v tom prohlížeči přihlásí na dash.cloudflare.com, pak spusť `wrangler login` znovu
+     (nový odkaz). Odkaz bez otevření prohlížeče: `npx -y wrangler@4 login --browser=false`.
+   - „Timed out waiting for authorization code“ = vypršely 2 minuty, spusť login znovu.
+3. **Adresa webu:** web poběží na `https://rodokmen.<název>.workers.dev` (`rodokmen` = název webu na účtu, `<název>` =
+   subdoména účtu). Vymysli 2–3 názvy podle rodu (malá písmena
+   bez diakritiky, pomlčky: `novakovi`, `novakovi-holice`, `rod-novaku`), ověř je
+   `cd web && node scripts/nasadit_cloudflare.mjs --volno novakovi novakovi-holice rod-novaku` (ptá se DNS Cloudflare,
+   adresu tím „nevyplašíš“) a uživateli nabídni jen volné. Vybraný zapiš do `data/web.json` jako
+   `"cloudflare": {"nazev": "novakovi"}`. Název je subdoména celého účtu Cloudflare (založí se při prvním nasazení,
+   změnit jde jen v administraci); kdyby byl přece obsazený, nasazení zkusí variantu s číslem a řekne ji.
+   **Má-li uživatel účet Cloudflare už dřív**, použije se jeho stávající subdoména a název z `web.json` se nepoužije –
+   adresu pak řekne až nasazení. Subdoména je na účtu jen jedna a přes API ji změnit nejde (jen v administraci).
+   **Druhý rodokmen na stejném účtu** potřebuje jiný název webu, jinak by první web přepsal: zeptej se na něj (např.
+   `rodokmen-dvorakovi`), zapiš `"cloudflare": {"web": "rodokmen-dvorakovi"}` a ukaž celou adresu
+   `https://rodokmen-dvorakovi.<subdoména>.workers.dev`. Nasazení to samo hlídá: když web s tím názvem na účtu už je
+   a z téhle složky se ještě nenasazoval, skončí s radou (tentýž projekt z jiného počítače: `node scripts/nasadit_cloudflare.mjs --prepsat`).
+4. **Nasazení:** `cd web && npm run nasadit-cloudflare` (spusť sám). Vypíše adresu a sám spustí kontrolu
+   `scripts/overit.mjs`. U nové adresy kontrola počká, až se rozšíří (pár minut); když ji počítač ještě nezná, řekne to
+   a skončí bez chyby – pak ověř později `npm run overit`. Do té doby adresu v prohlížeči neotvírej: počítač nebo
+   router by si zapamatoval, že neexistuje, a až 30 minut by ji neviděl (jinde, třeba v telefonu na mobilních datech,
+   web už jede). Řekni to uživateli, ať se nelekne.
+5. Ověř i sám v anonymním okně: rodinná otázka, po správné odpovědi web.
+   Bránu (`web/cloudflare/worker.js`) a `web/wrangler.jsonc` vyrábí export – ručně neupravovat. Brána musí běžet
+   před každým souborem (`run_worker_first`), jinak by šly stránky a fotky stáhnout bez přihlášení.
+Další aktualizace = jen `npm run nasadit-cloudflare`.
+
+**Pasti:**
+- „You need to verify your email address to use Workers“ (403) u nového účtu: Cloudflare chce ověřený e-mail – ověření
+  v dashboardu (pruh nahoře / My Profile), potvrdit odkaz v poště, nasadit znovu (subdoména už zůstane založená).
+- Safari s blokátorem obsahu ukáže místo ověřovací stránky Cloudflare prázdnou stránku 403 – zkus jiný prohlížeč
+  (kontrola to pozná).
+- Nepoužívej `wrangler pages project create/deploy` ani „Import a repository“ v administraci – založí jiný typ projektu,
+  případně sám přepíše `astro.config`/`package.json`. Nasazuj jen přes `npm run nasadit-cloudflare`.
+- V cloudovém prostředí (claude.ai), kde se přihlášení přes prohlížeč nevrátí do terminálu, použij Netlify (`login --request`).
+
+## Zveřejnění na Netlify (druhá možnost)
+Pro uživatele, kteří už web na Netlify mají. Bezplatný účet vystačí jen na asi 20 nasazení měsíčně (viz kredity níže).
 1. Uživatel si založí účet na netlify.com (stačí přihlášení přes Google/GitHub) – udělá sám.
 2. Přihlášení CLI (otevře prohlížeč) – dej uživateli: `! cd web && npx -y netlify-cli@latest login`.
    Když `!` nejde (cloudové prostředí): `npx -y netlify-cli@latest login --request "Rodokmen"` vypíše odkaz a číslo
@@ -91,6 +138,8 @@ zkus v `launch.json` `"runtimeExecutable": "node"` a `"runtimeArgs": ["web/node_
   [ -n "$OLD" ] && [ "$OLD" != "$(docker images -q rodokmen-web:latest)" ] && docker image rm "$OLD"
   ```
   `docker system/image/builder prune` nepoužívej – platí pro celý server a smaže i věci jiných projektů.
+- Web počítá s během v kořeni domény (odkazy, cookie přihlášení i hledání od `/`) – za reverse proxy mu dej
+  subdoménu (`rodokmen.server.cz`), ne podadresář (`server.cz/rodokmen/`).
 - **Jen přes https** (reverse proxy s Let's Encrypt, DSM, CapRover to umí): přihlašovací stránka počítá otisk odpovědi
   v prohlížeči a ten to přes obyčejné http (mimo localhost) nedovolí – přihlášení by nefungovalo.
 - CapRover: `npm run deploy-caprover` (vyžaduje nainstalovaný a přihlášený `caprover` CLI).
