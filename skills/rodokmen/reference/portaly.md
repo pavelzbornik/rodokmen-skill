@@ -433,7 +433,8 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
   nemáš, v přihlášené záložce s `tools/fs_prohlizec.js` spusť `await fs.snimek(ark)` s ARK snímku
   (`3:1:…` z adresy nebo výsledku hledání). Znáš-li DGS a pořadí snímku, použij `await fs.stahni(dgs, poradi)`.
   Prohlížeč stáhne `f<film>_<pořadí>.jpg` do složky pro stahování. Do `pracovni/` přesuň jen očekávaný
-  soubor po dokončení stahování a pokračuj výřezem přes `tools/vyrez.py`.
+  soubor po dokončení stahování. Pokud tam soubor stejného jména už byl, ověř v seznamu stažených souborů,
+  kterou kopii prohlížeč právě uložil. Pokračuj výřezem přes `tools/vyrez.py`.
 - Pokud ovládání prohlížeče neumožní soubor převzít, požádej uživatele, ať snímek uloží tlačítkem Download
   a předá ho s adresou stránky. Omezený snímek zaznamenej podle [pravidel FamilySearch](fs-sync.md#příkazy).
   Žádné vlastní přijímače na localhostu ani jiné obcházení ochran prohlížeče.

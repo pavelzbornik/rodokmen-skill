@@ -177,7 +177,8 @@ Chybějící osobu či nenačtené zdroje diff hlásí jako nenačtené, nikdy j
 počet nezjištěný a obsah v `tasks_raw`. `complete` znamená dokončené čtení zadaného rozsahu
 bez chyb. `requested_ids` obsahuje požadované osoby před omezením `--max-persons`, které slouží k částečné
 kontrole. Před vyhodnocením kola zkontroluj `complete`, `errors` a záznamy potřebných osob v `persons`.
-Při sloučení osoby najdeš její nové ID v `merged`. Pro vzdálenější generace předej kořen další větve a nejvýše 8 generací.
+Při sloučení osoby hledej nové ID v `merged`. Hodnota `null` znamená, že cíl sloučení zůstal neznámý
+a osoba se nenačetla. Pro vzdálenější generace předej kořen další větve a nejvýše 8 generací.
 Chyby jednotlivých čtení mají `id`, `part`, `status`, `error`; starší snapshoty mohou mít textové chyby.
 Při jiných HTTP chybách než 401/403/429/503 se pokračuje dalšími údaji a osobami, chybějící čtení zůstává
 nenačtené. Při 401/403/429/503 se celá dávka okamžitě zastaví.
