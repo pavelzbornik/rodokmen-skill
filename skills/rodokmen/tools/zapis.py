@@ -11,6 +11,8 @@ Použití (z kořene projektu):
 Položka se stejným klíčem se nahradí, jinak se přidá na konec. Python skripty ani `sed -i` na data nepoužívej.
 """
 import json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import zamek
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -62,10 +64,35 @@ def main():
         sys.exit(f"Vstup {vstup} není platný JSON: {e}")
     if not isinstance(obj, dict):
         sys.exit("Vstup musí být jeden objekt JSON ({…}).")
-    seznam = nazev in SEZNAMY
-    if seznam and obj.setdefault(SEZNAMY[nazev], klic) != klic:
+    if nazev in SEZNAMY and obj.setdefault(SEZNAMY[nazev], klic) != klic:
         sys.exit(f"Klíč „{klic}“ nesedí s „{SEZNAMY[nazev]}“ ve vstupu („{obj[SEZNAMY[nazev]]}“).")
-    text = open(path, encoding="utf-8-sig").read() if os.path.exists(path) else ""
+    nova = zapis_soubor(path, nazev, klic, obj, sloucit)
+    print(f"data/{nazev}.json: {'přidáno' if nova else 'změněno'} „{klic}“")
+
+
+def zamceno(path):
+    """Zámek <path>.lock z tools/zamek.py sdílený s fs_sync.py."""
+    return zamek.zamceno(str(path))
+
+
+def prepis(path, text):
+    """Celý soubor naráz přes dočasný soubor s číslem procesu (tools/zamek.py). Volat pod zamceno(path)."""
+    zamek.zapis_text(str(path), text)
+
+
+def zapis_soubor(path, nazev, klic, obj, sloucit=False):
+    """Zapíše položku do souboru path → True, když přibyla. Čtení, úprava i přepsání pod zámkem
+    (20. 11. 2026 dva zápisy přes společný .tmp rozbily prepisy.json)."""
+    with zamceno(path):
+        text = open(path, encoding="utf-8-sig").read() if os.path.exists(path) else ""
+        text, nova = zapis_text(text, nazev, klic, obj, sloucit)
+        prepis(path, text)
+        return nova
+
+
+def zapis_text(text, nazev, klic, obj, sloucit=False):
+    """Vlož nebo změň jednu položku JSON a vrať text a příznak, zda položka přibyla."""
+    seznam = nazev in SEZNAMY
     try:
         data = json.loads(text) if text.strip() else ([] if seznam else {})
         if not isinstance(data, list if seznam else dict):
@@ -92,12 +119,7 @@ def main():
         text = (text[:e] + ",\n" + odsazeni + ("" if seznam else json.dumps(klic, ensure_ascii=False) + ": ")
                 + jako(text, s, e, nove) + text[e:])
     json.loads(text)   # pojistka: výsledek musí být platný JSON
-
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
-        f.write(text)
-    os.replace(tmp, path)   # celý soubor naráz – při chybě nezůstane rozepsaný
-    print(f"data/{nazev}.json: {'přidáno' if idx is None else 'změněno'} „{klic}“")
+    return text, idx is None
 
 
 if __name__ == "__main__":

@@ -9,11 +9,11 @@ znalost rodiny a rozhodujete.
 
 Vznikl při skutečném hledání předků jedné rodiny.
 
-**Autor a správce:** Jindřich Šaršon ([sarsonj@gmail.com](mailto:sarsonj@gmail.com), [GitHub](https://github.com/sarsonj))
+Autorem původního skillu je Jindřich Šaršon ([sarsonj@gmail.com](mailto:sarsonj@gmail.com), [GitHub](https://github.com/sarsonj)).
 
-**Aktuální verze: 0.8.2 (vydána 5. 11. 2026).** Skill se průběžně vyvíjí – opravuji chyby a doplňuji postupy pro další archivy
-podle toho, na co narazíte vy. Jak aktualizovat, najdete v části [Instalace](#instalace), přehled změn
-po verzích v [CHANGELOG.md](CHANGELOG.md).
+**Verze této odnože je 0.8.3-pavel.1 (23. 11. 2026).** Přidává [synchronizaci s FamilySearch](skills/rodokmen/reference/fs-sync.md)
+a [odkazy na předvyplněné e-maily](skills/rodokmen/reference/zadosti.md). Jak ji nainstalovat nebo aktualizovat
+popisuje část [Instalace](#instalace).
 
 > **Než začnete**
 >
@@ -66,7 +66,7 @@ s přepisem a překladem, „Co hledáme“ a deník hledání. **[Podívejte se
 AI se vyvíjí rychle a za pár měsíců může skill dávat lepší, nebo jen jiné výsledky. Proto je tu uvedeno, s čím byl
 vyzkoušený.
 
-- **Stav k 5. 11. 2026 (verze 0.8.2):** Claude Code s hlavním modelem **Claude Opus 5.5**. Pomocníci, kteří hledají
+- **Stav původního skillu k 5. 11. 2026 (verze 0.8.2):** Claude Code s hlavním modelem **Claude Opus 5.5**. Pomocníci, kteří hledají
   a čtou matriky jako první, běží na **Claude Sonnet 5.5**. Každý jejich nález pak hlavní model ověřuje na snímku.
 - Vyzkoušeno na několika skutečných rodokmenech (největší má 243 předků v 11 generacích a 192 matričních zápisů).
   Výsledek se porovnával s větví, kterou jsme léta dělali ručně.
@@ -78,10 +78,11 @@ S jiným nebo slabším modelem počítejte s víc chybami ve čtení starého p
 ### Varianta A – jako plugin (doporučeno)
 V Claude Code napište:
 ```
-/plugin marketplace add sarsonj/rodokmen-skill
+/plugin marketplace add pavelzbornik/rodokmen-skill
 /plugin install rodokmen@rodokmen-skill
 ```
-Pak Claude Code restartujte (do běžící relace se nový plugin nenačte).
+Pak Claude Code restartujte (do běžící relace se nový plugin nenačte). Pokud už máte přidaný původní
+marketplace `sarsonj/rodokmen-skill`, v `/plugin` ho nejprve odeberte nebo zvolte ruční instalaci níže.
 **Aktualizace.** Claude Code u pluginů od jiných autorů než Anthropic nové verze sám nehlídá. Máte dvě možnosti:
 - **Automaticky (doporučuji):** jednou v `/plugin` na kartě **Marketplaces** vyberte `rodokmen-skill` a zapněte
   automatické aktualizace (Enable auto-update). Nová verze se pak stáhne při spuštění Claude Code.
@@ -90,7 +91,6 @@ Pak Claude Code restartujte (do běžící relace se nový plugin nenačte).
   claude plugin marketplace update rodokmen-skill
   claude plugin update rodokmen@rodokmen-skill
   ```
-  O nových verzích se dozvíte přes **Watch → Custom → Releases** na GitHubu.
 
 Po aktualizaci Claude Code restartujte. Rozpracovaný projekt pak Claude při další práci sám nabídne aktualizovat
 na novou verzi (vaše data i vlastní úpravy webu a nástrojů zůstanou, změny šablony se do nich sloučí).

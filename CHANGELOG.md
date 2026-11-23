@@ -6,6 +6,11 @@ dá v repozitáři **Watch → Custom → Releases**.
 
 Projekt založený starší verzí Claude sám nabídne aktualizovat (pozná to podle souboru `VERZE`).
 
+## 0.8.3-pavel.1 – 23. 11. 2026
+
+- Synchronizace s FamilySearch porovná místní rodokmen s přihlášeným stromem a připraví plán ke kontrole.
+- Z konceptu e-mailu vytvoří odkazy do výchozí pošty, Gmailu, Outlooku nebo Seznam Emailu.
+
 ## 0.8.2 – 5. 11. 2026
 
 **Opravy**

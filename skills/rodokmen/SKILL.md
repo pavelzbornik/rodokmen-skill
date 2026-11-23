@@ -4,7 +4,8 @@ description: >-
   Průvodce tvorbou rodokmenu z českých matrik a rodinného webu pro lidi bez zkušeností s genealogií i programováním.
   Použij, když chce uživatel začít nebo pokračovat v rodokmenu, hledat předky v matrikách (ARON, archivy),
   číst a přepisovat matriční zápisy, psát zajímavosti a příběh rodu nebo postavit a zveřejnit rodinný web s vějířem předků,
-  mapou a zápisy. Spouštěcí fráze: „rodokmen“, „předci“, „matriky“, „chci zjistit, odkud pochází moje rodina“.
+  mapou a zápisy. Také pro synchronizaci s FamilySearch a koncepty e-mailů archivům a úřadům.
+  Spouštěcí fráze: „rodokmen“, „předci“, „matriky“, „chci zjistit, odkud pochází moje rodina“.
 ---
 
 # Rodokmen z matrik + rodinný web
@@ -222,6 +223,19 @@ Linie končí, když matriky mlčí (nemanželské dítě bez otce, shořelé kn
 v 17. století. Zapiš to do `ISSUES`/`archivni_dotazy.md` a jdi na jinou větev. Průběžně aktualizuj `data/STAV.md`
 („Rozpracováno“), aby šlo kdykoli navázat.
 
+### FamilySearch
+
+Když chce uživatel porovnat svůj strom s FamilySearch, načti [návod k synchronizaci](reference/fs-sync.md).
+Začni porovnáním z přihlášené záložky. Před zápisem ve veřejném stromu ukaž uživateli navržené změny
+a jejich doklady a počkej na výslovný souhlas.
+
+### E-mail archivu nebo úřadu
+
+Adresu ověř na oficiálním webu instituce. Koncept ulož do `pracovni/zadosti/` podle
+[návodu k žádostem](reference/zadosti.md). Příkaz `python3 -I tools/mailto.py <koncept.md> --gmail`
+vytvoří odkaz do Gmailu a odkaz pro výchozí poštovní program. Na Windows ho spusť přes `python -I -X utf8`.
+Ukaž odkaz k otevření a text ke kontrole. E-mail odesílá uživatel.
+
 ## Fáze 3 – Zajímavosti a Příběh hlavního rodu
 Podrobně `reference/pribehy.md`. Tohle je to, co rodina na webu čte nejradši, takže na to nezapomínej a nenechávej to na konec.
 - **Zajímavosti** („fun facts“) sbírej **průběžně**: co najdeš při čtení, hned zapiš do `data/zajimavosti.md`
@@ -288,6 +302,8 @@ Nedělej to pořád. Postup:
 | `data/prepisy.json`, `data/zvyrazneni.json` | přepisy s překlady, rámečky čteného místa |
 | `data/research_log.md` | deník všech hledání |
 | `data/udaje_od_rodiny.md`, `data/archivni_dotazy.md` | co víme od rodiny; co jen v archivu |
+| `data/zadosti.md` | přehled odeslaných žádostí a odpovědí |
+| `data/familysearch.json` | místní mapa osob na FamilySearch, pokud se používá synchronizace |
 | `data/zajimavosti.md`, `data/pribeh.md`, `data/web.json`, `data/dokumenty.json`, `data/mista.json` | texty a nastavení webu, rodinné fotky, místa na mapě |
 | `vyrezy/`, `zdroje/` | výřezy zápisů a dokumentů (web / plné rozlišení), název = klíč + `.jpg` |
 | `dokumenty/`, `pracovni/` | originály od rodiny; pracovní soubory (nejdou na web) |
@@ -309,6 +325,8 @@ Nedělej to pořád. Postup:
 | `matricula_dl.sh`, `matricula_batch.sh` | snímky z Matriculy (Rakousko…), URL se bere z prohlížeče |
 | `anno.py`, `anno_snap.py`, `kramerius.py` | noviny: ANNO (rakouské; `--ztraty` = seznamy ztrát 1914–1919), Kramerius (české) |
 | `ged_import.py strom.ged "Jméno"` | předci z rodinného stromu (GEDCOM) + fronta zápisů |
+| `fs_sync.py scope / snapshot-import / diff / map / log` a `fs_prohlizec.js` | porovnání místních údajů s FamilySearch a zápis zkontrolovaného plánu |
+| `mailto.py <koncept.md> --gmail` | odkazy k otevření předvyplněného e-mailu |
 | `ftb_export.py strom.ftb out.ged ["Jméno" rok linie.md [Photos/]]` | záloha z MyHeritage (.ftb) → GEDCOM + přímá linie s původem údajů |
 | `mapa_knihy.py aron/pf/ahmp <kniha> <od> <do> [krok]`, `--vedle --ostre --vyrez …`, `soubory …` | mapa knihy (horní pruhy snímků pod sebou) a montáž sloupce se jmény vedle sebe – orientace v knihách po vsích (`matriky.md`) |
 | `overit.py <snímek> x0,y0,x1,y1 <prefix> [--kontrast]` | zápis na dvě čitelné poloviny – ověření čtení (souřadnice = zlomky 0–1) |
