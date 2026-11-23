@@ -70,10 +70,12 @@ VLAKNA = soubor("vlakna.py",
                 "with cf.ThreadPoolExecutor(8) as ex:\n"
                 "    list(ex.map(lambda u: urllib.request.urlopen(u, timeout=10).read(), sys.argv[1:]))\n")
 BLOK = soubor("blok.py",  # testovací web i Opava míří na lokální server jen v tomto procesu
-              f"import socket, sys, urllib.request\nsys.path.insert(0, {TOOLS!r})\nimport slusne\n"
+              "import http.client, socket, sys, urllib.request\n"
+              # Spouští se přes obal. Samostatný import slusne by vytvořil druhou kopii jeho nastavení.
+              "brzda = http.client.HTTPConnection.putrequest.__globals__\n"
               "host = 'archiv.example.test'\n"
-              "slusne.LIMITY[host] = slusne.LIMITY['archives.cz']\n"
-              "slusne.BAN_TEXT[host] = slusne.BAN_TEXT['archives.cz']\n"
+              "brzda['LIMITY'][host] = brzda['LIMITY']['archives.cz']\n"
+              "brzda['BAN_TEXT'][host] = brzda['BAN_TEXT']['archives.cz']\n"
               "_g = socket.getaddrinfo\n"
               "socket.getaddrinfo = lambda h, *a, **k: _g('127.0.0.2', *a, **k)\n"
               "opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))\n"
@@ -213,15 +215,13 @@ check("slusne.py bash: 429 z curl ve skriptu zastaví další dotazy", not zazna
 
 # 8) Opava je jen v prohlížeči. Limit 4 s a blokovací stránku ověří testovací web.
 e = stav("s8"); t0 = time.time()
-r = subprocess.run(PY + [BLOK, f"http://digi.archives.cz:{PA}/api?opava"], env=e,
-                   capture_output=True, text=True, encoding="utf-8")
+r = spust([BLOK, f"http://digi.archives.cz:{PA}/api?opava"], e)
 check("ZA Opava: skript skončí před dotazem na archiv", r.returncode == KOD and "ZA Opava" in r.stderr
       and not zaznamy(t0), f"kód {r.returncode}")
 
 web = f"http://archiv.example.test:{PA}"
 t0 = time.time()
-r = subprocess.run(PY + [BLOK, web + "/api?o=1", web + "/api?o=2", web + "/blocked", web + "/api?o=po"],
-                   env=e, capture_output=True, text=True, encoding="utf-8")
+r = spust([BLOK, web + "/api?o=1", web + "/api?o=2", web + "/blocked", web + "/api?o=po"], e)
 z = rozestupy(zaznamy(t0, "/"))
 check("limit 4 s a stránka „zablokováno“ (200)", r.returncode == KOD and len(z) == 2 and all(x >= 3.9 for x in z),
       f"kód {r.returncode}, rozestupy {z} s, po stránce „zablokováno“ už nic")

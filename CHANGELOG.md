@@ -7,12 +7,6 @@ Projekt založený starší verzí Claude sám nabídne aktualizovat (pozná to 
 
 ## 0.10.2 – 16. 11. 2026
 
-**Odnož (23. 11. 2026)**
-- Přebírá verzi 0.10.2 původního skillu včetně oprav šablony webu a instalátoru. Obsahuje dál synchronizaci
-  s FamilySearch, přehled úkolů a pomůcky pro výzkum a koncepty e-mailů.
-- Kontrola verzí sleduje hlavní větev odnože. Zápisy do JSON používají společný zámek a vyžadují potvrzení
-  přepsání, pokud by se tím ztratilo některé pole.
-
 Opravná verze: bezpečnější založení a aktualizace projektu, správný požadavek na Node a pravidla, aby chybné „není
 tam“ od pomocníka neschovalo předka.
 
@@ -30,6 +24,12 @@ tam“ od pomocníka neschovalo předka.
 - Záporný výsledek pomocníka („prošel jsem snímky 20–60, není tam“) Claude přijme jen s dokladem – první a poslední
   jméno a data z každého snímku, čtené ve zvětšení – a v deníku rozliší úsek prošlý s dokladem a jen orientačně.
   Chybné „není“ dřív mohlo předka schovat natrvalo.
+
+**Odnož (23. 11. 2026)**
+- Přebírá verzi 0.10.2 původního skillu včetně oprav šablony webu a instalátoru. Obsahuje dál synchronizaci
+  s FamilySearch, přehled úkolů a pomůcky pro výzkum a koncepty e-mailů.
+- Kontrola verzí sleduje hlavní větev odnože a nabídne instalaci jejích chybějících nástrojů i při shodném čísle verze.
+- Zápisy do JSON používají společný zámek a vyžadují potvrzení přepsání, pokud by se ztratilo některé pole.
 
 ## 0.10.1 – 13. 11. 2026
 

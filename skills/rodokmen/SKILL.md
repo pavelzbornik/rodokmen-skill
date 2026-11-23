@@ -39,7 +39,8 @@ Najdeš v ní `tools/` (nástroje), `template/` (šablona projektu a webu) a `re
    - `NOVA_VERZE_SKILLU` → jednou větou řekni, že odnož má novou verzi, a poraď, jak aktualizovat skill (vypíše jak);
      projekt aktualizuj až z nového skillu (po restartu), nikdy ne z klonu GitHubu. `PROJEKT_NOVEJSI` → jen poraď
      aktualizovat skill. `SKILL_NEZJISTEN` → spusť kontrolu znovu ze `SKILL_DIR`.
-   - `AKTUALIZUJ_PROJEKT` → nabídni `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>` (data zůstanou,
+   - `AKTUALIZUJ_PROJEKT` (stará verze nebo chybějící nástroje odnože) → nabídni
+     `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>` (data zůstanou,
      vlastní úpravy webu a `tools/` se sloučí s novou šablonou), pak ve `web/` `npm install`. Výpis projdi s uživatelem
      podle `reference/web.md` → Aktualizace staršího projektu. Odmítne-li, připomeň to až příště. Po aktualizaci ať
      uživatel restartuje Claude Code (změny v `.claude/settings.json` se jinak nemusí projevit). Hlásí-li výpis
@@ -228,8 +229,8 @@ technický postup, ne údaje o rodině.
 připomeň uživateli, že je může poslat správci skillu:
 1. Projdi poznámky a odstraň nebo zobecni osobní údaje.
 2. Vypiš je do chatu celé, jako jeden blok k zkopírování.
-3. Požádej uživatele, ať je pošle e-mailem na **sarsonj@gmail.com** (předmět třeba „Rodokmen skill – poznámky“) –
-   autor užitečné změny rád zapracuje, aby je měli i ostatní; může připsat i vlastní postřehy.
+3. U nástrojů odnože odkaž uživatele na [správce odnože](https://github.com/pavelzbornik). Chybu, která se projeví
+   i v původním skillu, může nahlásit v [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues).
 **Nic sám neposílej** (žádný e-mail, formulář ani issue). Až uživatel řekne, že poslal, zapiš do
 `poznamky_pro_skill.md` „odesláno <datum>“ a další poznámky piš pod tuto čáru.
 

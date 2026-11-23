@@ -36,14 +36,9 @@ na matriky a jejich rejstříky a [ANNO](skills/rodokmen/reference/portaly.md#no
 > u [Moravské genealogické a heraldické společnosti](https://www.mghs.cz) (Brno). Obě pořádají kurzy a přednášky
 > a mají knihovnu. Rodokmen ze skillu, kde je u každého údaje zdroj a snímek, může genealogovi posloužit jako dobrý
 > podklad.
->
-> **Jste genealog nebo zkušený badatel?** Budu rád za kritiku. Když uvidíte chybu v postupu, ve čtení nebo v tom,
-> co skill radí, [založte issue](https://github.com/sarsonj/rodokmen-skill/issues) nebo mi napište. Vaše zkušenost
-> je přesně to, co AI chybí.
 
 **Přečetla AI něco špatně, něco nefunguje nebo jste narazili na jiný problém?**
-[Založte prosím issue na GitHubu →](https://github.com/sarsonj/rodokmen-skill/issues/new)
-(víc v části [Zpětná vazba](#zpětná-vazba-a-vaše-zkušenosti)).
+Postup najdete v části [Zpětná vazba](#zpětná-vazba-a-vaše-zkušenosti).
 
 ## Jak vypadá web
 Ukázkový web s vymyšlenou rodinou Novákových (260 předků v 11 generacích) má na úvodní stránce příběh rodu, zajímavosti,
@@ -99,8 +94,7 @@ marketplace `sarsonj/rodokmen-skill`, v `/plugin` ho nejprve odeberte nebo zvolt
 
 Po aktualizaci Claude Code restartujte. Rozpracovaný projekt pak Claude při další práci sám nabídne aktualizovat
 na novou verzi (vaše data i vlastní úpravy webu a nástrojů zůstanou, změny šablony se do nich sloučí).
-Přecházíte-li z původního skillu stejné verze, po instalaci odnože jednou spusťte její
-`tools/novy_projekt.py <složka projektu>` přes Python, aby se do projektu přidaly nástroje odnože.
+Při přechodu z původního skillu stejné verze Claude nabídne aktualizaci, pokud v projektu chybí nástroje odnože.
 
 ### Varianta B – ručně
 Stáhněte repozitář (zelené tlačítko **Code → Download ZIP** na GitHubu, nebo `git clone`) a zkopírujte složku
@@ -177,22 +171,18 @@ Děkuji všem, kdo mi poslali připomínky – jen verze 0.5.0 zapracovala přes
 Windows a staršího ImageMagicku, postupy pro MZA Brno a ZA Opava, bezpečná úprava dat a další). Každou připomínku čtu
 a průběžně zapracovávám – ne každou hned a ne každou doslova, aby skill zůstal jednoduchý pro všechny.
 
-**Chyby a problémy** – AI špatně přečetla zápis, spojila nesprávné lidi, nějaký krok nefunguje nebo spadl nástroj –
-prosím [založte jako issue na GitHubu](https://github.com/sarsonj/rodokmen-skill/issues/new) (stačí bezplatný účet).
-Popište, co se stalo, a pokud jde o čtení zápisu, přidejte odkaz na snímek v archivu. Issues jsou veřejné, proto
-do nich nepište údaje o žijících lidech.
-
-Budu rád i za další zkušenosti. Napište mi na **sarsonj@gmail.com**, co fungovalo, co ne, jaký archiv jste použili, co vám na webu chybělo.
-Užitečné změny rád zapracuji do skillu, aby je měli k dispozici i ostatní. Další verze tak bude lepší pro každého,
-kdo hledá své předky.
+Chyby v synchronizaci s FamilySearch, přehledu úkolů, e-mailových konceptech a dalších nástrojích odnože hlaste jejímu
+[správci na GitHubu](https://github.com/pavelzbornik). Chyby, které se projeví také v původním skillu, můžete zapsat
+do [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues/new).
+Popište, co se stalo. U chyby ve čtení můžete přidat odkaz na veřejný snímek z archivu. Rodinné údaje do hlášení nedávejte.
 
 Nemusíte nic sepisovat sami. Claude si během práce zapisuje do `poznamky_pro_skill.md` (v projektu), co by šlo zlepšit:
 chyby, nové archivy, postupy a nápady, bez údajů o vaší rodině. Občas vám je nabídne k odeslání. Nic se neposílá samo:
-když budete chtít, zkopírujte je do e-mailu.
+když budete chtít, zkopírujte je do zprávy.
 
 ## Bezpečnost
-Skill je obyčejný text (návod pro Clauda) a pár skriptů v Pythonu. Všechno si můžete před instalací prohlédnout
-tady v repozitáři.
+Skill obsahuje návody pro Clauda, skripty v Pythonu a JavaScript pro přihlášený prohlížeč FamilySearch.
+Kód si můžete před instalací prohlédnout v repozitáři.
 - **Žádný automaticky spouštěný kód.** Plugin nemá hooky ani MCP servery. Skripty spouští jen Claude, když je
   při práci potřebuje, a Claude Code se vás na ně zeptá.
   Jediná výjimka je volitelný **hlídač sítě**. Claude se na něj zeptá při zakládání projektu a bez vašeho souhlasu
@@ -212,6 +202,9 @@ tady v repozitáři.
   a souřadnice obcí) a při instalaci webu registr npm. Nové nástroje čtou veřejné stránky Bádáme.cz a fóra
   genealogie.taby.cz a veřejné API Krameria Jihočeské vědecké knihovny. Hledání na fóru a v knihovně předává zadaný dotaz.
   Na Cloudflare nebo Netlify jde obsah webu jen při zveřejnění. Kontrola verze čte číslo verze z GitHubu.
+- **FamilySearch a pošta.** Synchronizace používá váš přihlášený prohlížeč. Před zápisem do veřejného stromu Claude
+  ukáže plán a počká na výslovný souhlas. Koncept se předá Gmailu, Outlooku, Seznamu nebo místní poště při otevření
+  příslušného odkazu. Odesíláte ho sami.
 - **Doporučení:** nechte v Claude Code zapnuté schvalování příkazů, aspoň dokud si nezvyknete, co Claude dělá.
   Obecně instalujte skilly a pluginy jen od lidí, kterým věříte. Skill nikdo předem nekontroluje a Claude se
   jeho návodem řídí.

@@ -2,11 +2,11 @@
 """Kontrola verze na začátku konverzace: nainstalovaný skill × projekt × hlavní větev odnože.
 Použití: python3 -I <skill>/tools/verze.py [<složka projektu>]
 
-GitHubu se ptá nejvýš jednou za 24 hodin (mezipaměť ~/.cache/rodokmen_verze.json, Windows %LOCALAPPDATA%),
+GitHubu se ptá nejvýš jednou za 24 hodin (mezipaměť ~/.cache/rodokmen_verze_forku.json, Windows %LOCALAPPDATA%),
 bez sítě nebo při chybě se ho prostě nezeptá. Poslední řádek začíná „→“ a klíčovým slovem pro Clauda:
   NOVA_VERZE_SKILLU   odnož má na GitHubu novější verzi než nainstalovaný skill – ať uživatel aktualizuje skill
                       (projekt se pak aktualizuje z nového skillu, ne z GitHubu)
-  AKTUALIZUJ_PROJEKT  nainstalovaný skill je novější než projekt – nabídni novy_projekt.py
+  AKTUALIZUJ_PROJEKT  skill je novější než projekt nebo v projektu chybí nástroje odnože – nabídni novy_projekt.py
   PROJEKT_NOVEJSI     projekt vznikl novějším skillem než ten nainstalovaný (stará kopie skillu) – projekt neměnit
   SKILL_NEZJISTEN     spuštěno z kopie v projektu a nainstalovaný skill se nenašel – verze skillu neověřena
   AKTUALNI            vše sedí
@@ -29,7 +29,7 @@ SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "pavelzbornik/rodokmen-skill"
 URL = os.environ.get("RODOKMEN_VERZE_URL", f"https://raw.githubusercontent.com/{REPO}/main/skills/rodokmen/VERZE")
 CACHE = os.path.join(os.environ.get("RODOKMEN_CACHE") or os.environ.get("LOCALAPPDATA")
-                     or os.path.join(os.path.expanduser("~"), ".cache"), "rodokmen_verze.json")
+                     or os.path.join(os.path.expanduser("~"), ".cache"), "rodokmen_verze_forku.json")
 DEN = 24 * 3600
 
 
@@ -125,6 +125,15 @@ def desktop():
     return v, d
 
 
+def chybi_nastroje_odnoze(projekt):
+    if not os.path.isfile(os.path.join(projekt, "data", "STAV.md")):
+        return False
+    # Soubor ve staré šabloně mohl uživatel záměrně smazat. Instalátor ho v tom případě neobnoví.
+    return any(not os.path.isfile(os.path.join(projekt, "tools", name))
+               and not os.path.isfile(os.path.join(projekt, ".skill_sablona", "tools", name))
+               for name in ("fs_sync.py", "mailto.py", "pokryti.py"))
+
+
 def main():
     global SKILL
     skill = cti(os.path.join(SKILL, "VERZE"))
@@ -155,8 +164,9 @@ def main():
     elif projekt_dir and p and s and p > s:
         print(f"→ PROJEKT_NOVEJSI: projekt je z verze {projekt}, nainstalovaný skill je starší ({skill}). Projekt neaktualizuj\n"
               "  (vrátil bys ho ke starší verzi); ať uživatel aktualizuje skill (viz README, část Instalace).")
-    elif projekt_dir and s and (not p or s > p):
-        print(f"→ AKTUALIZUJ_PROJEKT: skill {skill} je novější než projekt. Nabídni aktualizaci projektu:\n"
+    elif projekt_dir and s and (not p or s > p or (s == p and chybi_nastroje_odnoze(projekt_dir))):
+        duvod = f"skill {skill} je novější než projekt" if s != p else "v projektu chybí nástroje odnože"
+        print(f"→ AKTUALIZUJ_PROJEKT: {duvod}. Nabídni aktualizaci projektu:\n"
               f"  python3 -I {os.path.join(SKILL, 'tools', 'novy_projekt.py')} <složka projektu>")
     elif not s:
         print("→ SKILL_NEZJISTEN: nainstalovaný skill jsem nenašel, verzi skillu neporovnávám. Spusť kontrolu ze složky\n"

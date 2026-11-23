@@ -74,7 +74,7 @@ try:
     check("GitHub novější, ručně nakopírovaný skill: neradí claude plugin, ale novou složku z GitHubu",
           "NOVA_VERZE_SKILLU" in out and "claude plugin" not in out and "github.com/pavelzbornik/rodokmen-skill" in out, out)
     check("GitHub novější: projekt z GitHubu neaktualizuje (žádný git clone)", "clone" not in out, out)
-    check("mezipaměť zapsaná", os.path.exists(os.path.join(cache, "rodokmen_verze.json")), os.listdir(tmp))
+    check("mezipaměť zapsaná", os.path.exists(os.path.join(cache, "rodokmen_verze_forku.json")), os.listdir(tmp))
 
     # 2) do 24 hodin se GitHubu znovu neptá
     pred = STAV["dotazy"]
@@ -82,7 +82,7 @@ try:
     check("do 24 h: z mezipaměti, bez dotazu na GitHub", STAV["dotazy"] == pred and "0.9.0" in out, (STAV, out))
 
     # 3) po 24 hodinách znovu
-    c = os.path.join(cache, "rodokmen_verze.json")
+    c = os.path.join(cache, "rodokmen_verze_forku.json")
     d = json.load(open(c))
     d["cas"] = time.time() - 25 * 3600
     json.dump(d, open(c, "w"))

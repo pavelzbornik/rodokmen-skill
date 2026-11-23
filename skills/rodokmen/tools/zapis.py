@@ -76,6 +76,11 @@ def nacti_osoby(src):
 
 def odkaz(osoba, klice):
     path = os.path.join(ROOT, "data", "osoby.py")
+    with zamceno(path):
+        return _odkaz(path, osoba, klice)
+
+
+def _odkaz(path, osoba, klice):
     src = open(path, "rb").read()
     try:
         strom = ast.parse(src)
@@ -165,7 +170,7 @@ def odkaz(osoba, klice):
         if po.get(jmeno) != ocekavane.get(jmeno):
             sys.exit(f"Úprava by změnila i {jmeno} – nic jsem nezapsal, uprav ručně.")
 
-    tmp = path + ".tmp"
+    tmp = f"{path}.tmp.{os.getpid()}"
     with open(tmp, "wb") as f:
         f.write(novy)
     os.replace(tmp, path)

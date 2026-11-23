@@ -1,5 +1,8 @@
 """Ověří nástroje v projektu vytvořeném skutečnou šablonou skillu."""
+from contextlib import contextmanager
+import importlib.util
 import json
+import os
 from pathlib import Path
 import runpy
 import subprocess
@@ -173,7 +176,25 @@ def test_kontrola_verze_sleduje_fork(monkeypatch, tmp_path, capsys):
     runpy.run_path(str(verze), run_name="__main__")
     assert requests == ["https://raw.githubusercontent.com/pavelzbornik/rodokmen-skill/main/skills/rodokmen/VERZE"]
     assert "AKTUALIZUJ_PROJEKT" in capsys.readouterr().out
-    assert json.loads(cache.read_text(encoding="utf-8"))["verze"] == "0.10.2"
+    assert json.loads(cache.read_text(encoding="utf-8"))["verze"] == "0.99.0"
+    assert json.loads((tmp_path / "rodokmen_verze_forku.json").read_text(encoding="utf-8"))["verze"] == "0.10.2"
+
+
+def test_stejna_verze_bez_nastroju_odnoze_nabidne_instalaci(projekt):
+    version_check = SKILL / "tools/verze.py"
+    args = [sys.executable, "-I", "-X", "utf8", str(version_check), str(projekt)]
+    env = dict(os.environ, RODOKMEN_VERZE_URL="http://127.0.0.1:9/nic",
+               RODOKMEN_CACHE=str(projekt / "pracovni"))
+    for name in ("fs_sync.py", "mailto.py", "pokryti.py"):
+        (projekt / "tools" / name).unlink()
+        (projekt / ".skill_sablona/tools" / name).unlink()
+    result = subprocess.run(args, capture_output=True, encoding="utf-8", env=env, check=True)
+    assert "AKTUALIZUJ_PROJEKT" in result.stdout and "nástroje odnože" in result.stdout
+
+    run(SKILL / "tools/novy_projekt.py", projekt)
+    (projekt / "tools/pokryti.py").unlink()
+    result = subprocess.run(args, capture_output=True, encoding="utf-8", env=env, check=True)
+    assert "AKTUALNI" in result.stdout and "AKTUALIZUJ_PROJEKT" not in result.stdout
 
 
 def test_zapis_zachova_pole_pokud_uzivatel_nepotvrdi_prepsani(projekt):
@@ -191,3 +212,39 @@ def test_zapis_zachova_pole_pokud_uzivatel_nepotvrdi_prepsani(projekt):
     assert json.loads(path.read_text(encoding="utf-8"))["test"] == {"nazev": "Novy nazev", "popis": "Popis"}
     run(tool, "svazky", "test", source, "--prepsat")
     assert json.loads(path.read_text(encoding="utf-8"))["test"] == {"nazev": "Novy nazev"}
+
+
+def test_zapis_odkaz_drzi_zamek_po_celou_upravu(projekt, monkeypatch):
+    source = projekt / "data/osoby.py"
+    source.write_bytes(b'P = {2: dict(n="Test", r=[])}\n')
+    (projekt / "data/zaznamy.json").write_bytes(b'[{"klic":"test"}]\n')
+    spec = importlib.util.spec_from_file_location("zapis_odkaz_test", projekt / "tools/zapis.py")
+    zapis = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(zapis)
+    monkeypatch.setattr(zapis, "ROOT", str(projekt))
+    nacti, replace = zapis.nacti_osoby, zapis.os.replace
+    locked = False
+
+    @contextmanager
+    def lock(path):
+        nonlocal locked
+        assert Path(path) == source
+        locked = True
+        try:
+            yield
+        finally:
+            locked = False
+
+    def guarded_read(data):
+        assert locked
+        return nacti(data)
+
+    def guarded_replace(old, new):
+        assert locked
+        return replace(old, new)
+
+    monkeypatch.setattr(zapis, "zamceno", lock)
+    monkeypatch.setattr(zapis, "nacti_osoby", guarded_read)
+    monkeypatch.setattr(zapis.os, "replace", guarded_replace)
+    zapis.odkaz("2", ["test"])
+    assert runpy.run_path(str(source))["P"][2]["r"] == ["test"]
