@@ -171,9 +171,9 @@ Děkuji všem, kdo mi poslali připomínky – jen verze 0.5.0 zapracovala přes
 Windows a staršího ImageMagicku, postupy pro MZA Brno a ZA Opava, bezpečná úprava dat a další). Každou připomínku čtu
 a průběžně zapracovávám – ne každou hned a ne každou doslova, aby skill zůstal jednoduchý pro všechny.
 
-Chyby v synchronizaci s FamilySearch, přehledu úkolů, e-mailových konceptech a dalších nástrojích odnože hlaste jejímu
-[správci na GitHubu](https://github.com/pavelzbornik). Chyby, které se projeví také v původním skillu, můžete zapsat
-do [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues/new).
+Chyby v synchronizaci s FamilySearch, přehledu úkolů, e-mailových konceptech a dalších nástrojích odnože předejte
+jejímu správci, pokud na něj máte kontakt. Jinak si je ponechte v poznámkách projektu.
+Chyby, které se projeví také v původním skillu, můžete zapsat do [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues/new).
 Popište, co se stalo. U chyby ve čtení můžete přidat odkaz na veřejný snímek z archivu. Rodinné údaje do hlášení nedávejte.
 
 Nemusíte nic sepisovat sami. Claude si během práce zapisuje do `poznamky_pro_skill.md` (v projektu), co by šlo zlepšit:

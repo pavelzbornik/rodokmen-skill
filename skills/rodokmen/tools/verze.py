@@ -128,9 +128,9 @@ def desktop():
 def chybi_nastroje_odnoze(projekt):
     if not os.path.isfile(os.path.join(projekt, "data", "STAV.md")):
         return False
-    # Soubor ve staré šabloně mohl uživatel záměrně smazat. Instalátor ho v tom případě neobnoví.
-    return any(not os.path.isfile(os.path.join(projekt, "tools", name))
-               and not os.path.isfile(os.path.join(projekt, ".skill_sablona", "tools", name))
+    # Instalátor zachová smazaný soubor ze staré šablony a při kolizi se složkou nebo odkazem soubor nepřidá.
+    return any(not os.path.lexists(os.path.join(projekt, "tools", name))
+               and not os.path.lexists(os.path.join(projekt, ".skill_sablona", "tools", name))
                for name in ("fs_sync.py", "mailto.py", "pokryti.py"))
 
 

@@ -229,8 +229,9 @@ technický postup, ne údaje o rodině.
 připomeň uživateli, že je může poslat správci skillu:
 1. Projdi poznámky a odstraň nebo zobecni osobní údaje.
 2. Vypiš je do chatu celé, jako jeden blok k zkopírování.
-3. U nástrojů odnože odkaž uživatele na [správce odnože](https://github.com/pavelzbornik). Chybu, která se projeví
-   i v původním skillu, může nahlásit v [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues).
+3. Chybu, která se projeví i v původním skillu, může uživatel nahlásit v
+   [jeho GitHub Issues](https://github.com/sarsonj/rodokmen-skill/issues). Ostatní poznámky může předat správci
+   odnože, pokud na něj má kontakt, nebo si je ponechat v projektu.
 **Nic sám neposílej** (žádný e-mail, formulář ani issue). Až uživatel řekne, že poslal, zapiš do
 `poznamky_pro_skill.md` „odesláno <datum>“ a další poznámky piš pod tuto čáru.
 

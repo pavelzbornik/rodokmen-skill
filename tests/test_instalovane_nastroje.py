@@ -191,6 +191,14 @@ def test_stejna_verze_bez_nastroju_odnoze_nabidne_instalaci(projekt):
     result = subprocess.run(args, capture_output=True, encoding="utf-8", env=env, check=True)
     assert "AKTUALIZUJ_PROJEKT" in result.stdout and "nástroje odnože" in result.stdout
 
+    collisions = [projekt / "tools" / name for name in ("fs_sync.py", "mailto.py", "pokryti.py")]
+    for path in collisions:
+        path.mkdir()
+    result = subprocess.run(args, capture_output=True, encoding="utf-8", env=env, check=True)
+    assert "AKTUALNI" in result.stdout and "AKTUALIZUJ_PROJEKT" not in result.stdout
+    for path in collisions:
+        path.rmdir()
+
     run(SKILL / "tools/novy_projekt.py", projekt)
     (projekt / "tools/pokryti.py").unlink()
     result = subprocess.run(args, capture_output=True, encoding="utf-8", env=env, check=True)
