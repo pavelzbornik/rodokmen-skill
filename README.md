@@ -71,7 +71,10 @@ vyzkoušený.
 - Vyzkoušeno na několika skutečných rodokmenech (největší má 243 předků v 11 generacích a 192 matričních zápisů).
   Výsledek se porovnával s větví, kterou jsme léta dělali ručně.
 
-S jiným nebo slabším modelem počítejte s víc chybami ve čtení starého písma.
+Pro třídění nebo výtah z hotového přepisu obvykle stačí levnější model. Při čtení starého písma může model
+uvést chybné jméno nebo datum bez známky nejistoty. Jeho čtení ověřujte přímo na snímku. Při výběru modelu
+si zvlášť vyzkoušejte práci s hotovým textem a čtení snímků. Výsledky čtení porovnejte s ověřeným přepisem.
+Pokud lze nastavit náročnost, začněte na střední (`medium`).
 
 ## Instalace
 
@@ -140,6 +143,9 @@ skills/rodokmen/
   template/          šablona projektu: prázdná data, ukázková rodina, web (Astro)
 .claude-plugin/      instalace jako plugin
 ```
+
+Instalace pluginu i ruční instalace používají stejný vstup `skills/rodokmen/SKILL.md`. Z něj vedou odkazy na
+postupy v `reference/`. Nastavení modelu a náročnosti si uživatel volí v aplikaci, ve které skill spouští.
 
 ## Co umí a co ne
 - **Hotové nástroje** (bez prohlížeče) mají: východní Čechy (SOA Zámrsk, ARON), západní Čechy (SOA Plzeň,

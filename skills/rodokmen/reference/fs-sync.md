@@ -22,11 +22,14 @@ FamilySearch pod účtem uživatele. Přihlašovací údaje zůstanou v prohlí�
 4. Spusť `python -I -X utf8 tools/fs_sync.py snapshot-import <stažený soubor>` a potom
    `python -I -X utf8 tools/fs_sync.py diff`. Výsledek je v souborech `plan-*.md` a `plan-*.json`
    v `pracovni/fs_sync/`. Tím končí porovnání pouze pro čtení.
-5. Rozpory nahlas a shody ověř na původním snímku. Pro zápis připrav kopii plánu. Ponech v ní pouze
-   ověřené položky s odkazy na snímky a nastav `reviewed: true`. Přes `map` lze nejprve uložit
-   zkontrolovaná ID, pak porovnání zopakuj. Změny veřejného stromu proveď až po výslovném souhlasu
-   uživatele s těmito položkami. Po `fs.syncApplyNaPozadi(plan)` výsledek ulož přes `log`
-   a ověř novým snapshotem a porovnáním.
+5. Přečti přehled v Markdownu i položky v JSON. Rozpory nahlas a shody ověř na původním snímku.
+   V kopii plánu ponech jen zkontrolované položky se zdůvodněním a odkazem na snímek. Zachovej ID a
+   nastav `reviewed: true`. Pokud přes `map` uložíš zkontrolovaná ID, spusť nové `diff`. Pro nově
+   namapované osoby, které ještě nemají načtené údaje, pořiď nový snapshot.
+6. Změny veřejného stromu proveď až po výslovném souhlasu uživatele s konkrétními položkami z aktuálního plánu.
+   Při zadání jen pro čtení skonči u porovnání. Po `fs.syncApplyNaPozadi(plan)` ulož stažený výsledek přes
+   `log <výsledek> --plan <schválený plán>`. Při přerušení se řiď stavem v souboru s výsledkem.
+   Potvrzené změny ověř novým snapshotem a porovnáním.
 
 Snapshoty, plány a výsledky nech v ignorované složce `pracovni/`. Po importu můžeš původní snapshot
 odstranit ze Stažených souborů. Výsledek zápisu přesuň do `pracovni/`. GEDCOM, mapu ID a deník sdílej
@@ -52,6 +55,9 @@ Nenahrávej neschválený plán do zapisovací funkce.
 Jednotlivý pomocný dotaz čti přes `await fs.syncCti('/platform/…')`, případně cestu `/service/…`.
 Používá stejné přihlášení, tempo a trvalou stopku jako snapshot a apply. Za běhu dávky čtení odmítne.
 Stejnou brzdu sdílejí také `fs.zdroje`, `fs.film`, `fs.stahni` a `fs.snimek`; blokace snímků zastaví i zápisy do stromu.
+Pro přehled všech připojených zdrojů jedné osoby použij `await fs.zdroje([id], true)`. Snímek vybírej podle
+ověřené stránky knihy. Pokud nástroj vrátí `NEVEŘEJNÝ SNÍMEK HTTP 403`, přeskoč omezený snímek a poznamenej
+to do deníku. Při `STOP HTTP …` ukonči práci v záložce a postupuj podle pravidel pro přerušení níže.
 Pro indexy pod `/platform/records/` požaduje GEDCOM X JSON, pro strom FS JSON a pro `/service/` běžný JSON.
 Nevkládej vlastní `fetch` ani vlastní čtení cookie. Výsledek může obsahovat rodinné údaje a patří do `pracovni/`.
 
@@ -168,8 +174,9 @@ Snapshot má `schema: rodokmen.fs-snapshot.v1`, `captured_at`, volitelné `ances
 s volbou `neighbours` také `relatives` (zesnulí sousedé podle FS ID) a `children` (rodič → zesnulé děti).
 Chybějící osobu či nenačtené zdroje diff hlásí jako nenačtené, nikdy jako prázdný stav FS.
 Úkoly, record-matches a shody MyHeritage slouží výhradně jako seznam stop. Při nerozpoznaném formátu úkolů zůstane jejich
-počet nezjištěný a obsah v `tasks_raw`. `complete` znamená dokončené čtení zadaného rozsahu,
-bez chyb, nikoli všech generací FamilySearch. Pro vzdálenější generace předej kořen další větve a nejvýše 8 generací.
+počet nezjištěný a obsah v `tasks_raw`. `complete` znamená dokončené čtení zadaného rozsahu
+bez chyb. Omezení `--max-persons` slouží k částečné kontrole. Před vyhodnocením celého kola porovnej
+rozsah v `requested_ids` se zamýšleným rozsahem. Pro vzdálenější generace předej kořen další větve a nejvýše 8 generací.
 Chyby jednotlivých čtení mají `id`, `part`, `status`, `error`; starší snapshoty mohou mít textové chyby.
 Při jiných HTTP chybách než 401/403/429/503 se pokračuje dalšími údaji a osobami, chybějící čtení zůstává
 nenačtené. Při 401/403/429/503 se celá dávka okamžitě zastaví.

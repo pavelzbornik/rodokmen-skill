@@ -25,6 +25,18 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
 - Snímky obrazovky na těžkých stránkách padají na timeout; text čti přes `get_page_text` / `read_page` nebo
   `innerText`.
 
+## Farnost a svazek
+
+- Ověř farnost podle obce, roku a druhu události. V katalogu zkontroluj okres, případný dobový název a seznam
+  obcí v popisu knihy. Farní příslušnost se mohla změnit, zvlášť při zakládání far koncem 18. století.
+- Projdi knihy a rejstříky, které pokrývají dané roky a obec. U sňatku zkus i farnost druhého snoubence.
+  U malé osady zkus heslo farní obce a nadpisy oddílů knihy. Zjištěnou faru a zdroj poznamenej do deníku.
+  Pro návrhy křtů ji můžeš uložit i do [volitelného `data/fary.json`](vyzkum.md#místní-rodokmen-a-familysearch).
+- Při chybě v prohlížeči zjisti, který požadavek selhal. Chyba cizího skriptu nevypovídá o dostupnosti
+  snímku. Pokud selhal archivní požadavek s HTTP 403, 429 nebo 503, dodrž [pravidla brzdy](../SKILL.md#šetrně-k-archivům--brzda-toolsslusnepy).
+  Jinou cestu hledej v nezávislém katalogu nebo kopii fondu. Při shodě knihy v jiném katalogu ověř titulní
+  stranu a stránku se zápisem. Pořadí snímků se může lišit.
+
 ## ARON (SOA Zámrsk) – hotové nástroje
 - **Hledání svazků:** `python3 -I tools/aron_search.py "Holice"` → řádky `apu_id | signatura, roky | druh, obce`.
   Popis obsahuje druh knihy (NAROZENÝCH / ODDANÝCH / ZEMŘELÝCH, index) a všechny obce farnosti.
@@ -57,7 +69,8 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   **Zkontroluj název a okres**: u stejnojmenných obcí portál vybere jinou (Buk → Bukovka), u měst i okres nebo synagogu.
   Malé osady portál nezná (Malá Chyška) – hledej farní nebo sousední obec a osadu v popisu knih.
 - Snímek: `https://digi.ceskearchivy.cz/<kniha>/<snímek>` (zároveň trvalý odkaz). Knihy mívají dobrovolnický jmenný
-  rejstřík (stránka místa → „Rejstříky“) – obrovská úspora; ne každá kniha ho má.
+  rejstřík (stránka místa → „Rejstříky“). Pokud portál ke knize zobrazuje sdílené poznámky badatelů,
+  použij je jako vodítko a ověř nález na snímku.
 - **Každé zobrazení snímku stáhne všechny dlaždice znovu** – i šipka zpět na snímek, který byl právě na obrazovce
   (rám se načte znovu s novým tokenem, mezipaměť prohlížeče nepomůže). Na snímku proto vyřiď všechno najednou: přibliž
   a přečti všechny zápisy, které můžeš potřebovat, než přejdeš dál.
@@ -389,16 +402,17 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
 
 ## FamilySearch (přes uživatelův přihlášený prohlížeč)
 - Přihlášení je potřeba i na hledání v indexech. České matriky tam skoro zindexované nejsou (Slovensko ano, hlavně křty).
-- Jen když ho má uživatel otevřený a sám nabídne. Z kontextu stránky lze volat JSON API
-  `https://www.familysearch.org/service/search/hr/v2/personas?q.surname=…&q.givenName=…&q.fatherGivenName=…&count=20`
-  (`fetch(…, {credentials:'include'})`); výsledky v `entries[].content.gedcomx`.
+- U osoby se známým FS ID nejdřív projdi názvy připojených zdrojů. Mohou odkazovat na snímek, který vyhledávání
+  v indexu nenajde. U sčítání zkus v katalogu obec i osadu a ověř číslo domu na archu.
+  Pro čtení zdrojů a postup při omezeném přístupu použij [návod k synchronizaci](fs-sync.md#příkazy).
+- Použij jen přihlášený prohlížeč, který uživatel sám nabídne. Pro cílený dotaz do indexu lze v téže záložce
+  použít `fs.syncCti` s cestou `/service/search/hr/v2/personas?q.surname=…&q.givenName=…&q.fatherGivenName=…&count=20`.
+  Výsledky hledej v `entries[].content.gedcomx`.
 - Užitečné na indexy matrik a hroby (BillionGraves, Find a Grave). Výsledek je vodítko – ověř v matrice.
 - Neměň uživateli otevřené karty (po hledání vrať původní adresu). Stránky za Cloudflare neobcházej – ať je uživatel
   otevře sám a pošle snímek obrazovky.
-- Snímky filmu (DGS): seznam přes `POST /search/filmdatainfo/image-data` s `{"type":"film-data","args":{"dgsNum":"00…","state":{"i":"0"},"locale":"cs"}}`
-  (`images[]` = ARK). Snímek: `https://www.familysearch.org/service/records/storage/deepzoomcloud/dz/v1/<ARK 3:1:…>/$dist`
-  (plné rozlišení), malé náhledy `…/image_files/8/0_0.jpg`. **Po ~1000 rychlých požadavcích přijde HTTP 429** a blokace
-  na desítky minut – stahuj jen konkrétní snímky, nanejvýš pár za sekundu, hromadné procházení knih nedělej.
+- Snímky filmu (DGS) vybírej v katalogu. Stahuj jen konkrétní snímky, které čteš. Návod k synchronizaci
+  popisuje společnou brzdu pro čtení snímků, zdrojů a údajů ze stromu.
 - **Slovensko** (sbírka „Slovakia Church and Synagogue Books 1592–1935“; bez účtu FamilySearch to nejde):
   1. **Fara:** katalog `https://www.familysearch.org/search/catalog/results?q.keywords=Farský úrad <obec>` (také
      „Grécko-katolícka …“, „Evanjelická …“). Najde i fary celého okolí – v závorce za farou je obec, pod kterou je
@@ -414,27 +428,12 @@ svazek, výstup JavaScriptu bez parametrů v Claude in Chrome).
   4. **1900–1940:** doklady od rodiny (rodné listy dětí uvádějí i prarodiče), náhrobky a evidence hrobů (Košice:
      gisplan.kosice.sk; cintoriny.sk jen část obcí). Rusíni vedení po 1950 jako pravoslavní mají starší zápisy
      v řeckokatolických knihách.
-- **Snímek do projektu (Playwright):** nástroje dostanou od FamilySearch 403, snímek vydá jen přihlášený prohlížeč.
-  Uživatel se jednou přihlásí v okně Playwrightu (přihlášení zůstane). ARK snímku je v adrese prohlížeče
-  (`/ark:/61903/3:1:…`) i ve výsledcích hledání. Nejdřív `python3 -I tools/cache.py najdi <adresa nebo ark>
-  --nahled pracovni/nahled.jpg` – je-li snímek už uložený, prohlížeč nepotřebuješ. Jinak `browser_evaluate`
-  s `filename: "pracovni/fs.json"`:
-  ```js
-  async () => {
-    const ark = '3:1:XXXX-XXXX-XXX';
-    const adresa = `https://www.familysearch.org/service/records/storage/deepzoomcloud/dz/v1/${ark}/$dist`;
-    const r = await fetch(adresa, {credentials: 'include'});
-    if (!r.ok) return `HTTP ${r.status} – snímek nejde stáhnout (přihlášení? omezený snímek?)`;
-    const b = await r.blob(), bm = await createImageBitmap(b);
-    const data = await new Promise(ok => { const f = new FileReader(); f.onload = () => ok(f.result); f.readAsDataURL(b); });
-    return JSON.stringify({w: bm.width, h: bm.height, adresa, data});
-  }
-  ```
-  a `python3 -I tools/cache.py uloz pracovni/fs.json pracovni/fs_<ark>.jpg --nahled pracovni/nahled.jpg` (snímek
-  v plném rozlišení do mezipaměti i do `pracovni/`, json smaže). Dál `vyrez.py` jako u jiných archivů.
-- **Bez Playwrightu (Claude in Chrome neumí ukládat do souboru):** ať uživatel snímek stáhne tlačítkem Download
-  (nebo ho se souhlasem stáhneš ty) – soubor přijde do `~/Downloads` jako `<id snímku>.jpg`, chvíli může mít
-  příponu `.tmp`. Přesuň **jen soubor s očekávaným názvem**, nikdy „nejnovější soubor ve Stažených“ (je tam i cizí).
+- **Snímek do projektu.** Nejdřív zkontroluj `pracovni/` a mezipaměť (`tools/cache.py najdi`). Pokud snímek
+  nemáš, v přihlášené záložce s `tools/fs_prohlizec.js` spusť `await fs.snimek(ark)` s ARK snímku
+  (`3:1:…` z adresy nebo výsledku hledání). Znáš-li DGS a pořadí snímku, použij `await fs.stahni(dgs, poradi)`.
+  Nástroj uloží soubor s číslem filmu a pořadím v názvu. Do `pracovni/` převezmi jen očekávaný soubor.
+- Pokud ovládání prohlížeče neumožní soubor převzít, požádej uživatele, ať snímek uloží tlačítkem Download
+  a předá ho s adresou stránky. Omezený snímek zaznamenej podle [pravidel FamilySearch](fs-sync.md#příkazy).
   Žádné vlastní přijímače na localhostu ani jiné obcházení ochran prohlížeče.
 
 ## Hroby a hřbitovy

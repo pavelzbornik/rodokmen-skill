@@ -28,10 +28,14 @@ Postup je v oddílu [E-mail archivu nebo úřadu](../SKILL.md#e-mail-archivu-neb
 - Pošta s úředně ověřeným podpisem nebo osobní návštěva, když úřad nic jiného nebere.
 - Adresu instituce (e-mail podatelny nebo matriky, ID datové schránky) vždy ověř na jejím oficiálním webu.
 
-## Koncept
+## Před dotazem
 
-Nejdřív ověř, které prameny už jsou online v portálu archivu, digitální knihovně nebo v katalogu FamilySearch.
-V konceptu jednou větou uveď, co jsi prohledal a který pramen nebo údaj ještě potřebuješ.
+Před e-mailem, formulářem i příspěvkem na fóru zkus dohledat každý požadovaný pramen. Kromě portálu archivu
+a katalogu FamilySearch zkus digitální knihovny a dostupná PDF edic. Co lze přečíst v dostupném prameni,
+ověř rovnou. V konceptu jednou větou uveď, co jsi prohledal a který pramen nebo údaj ještě potřebuješ.
+V `data/zadosti.md` se podívej, jestli na odpověď už nečekáš.
+
+## Koncept
 
 Soubor `pracovni/zadosti/<instituce>_<co>.md`. Víc žádostí v jednom souboru odděl řádkem `---`. Kontakty uživatele
 (adresa, telefon) patří jen sem, ne do `data/`.
@@ -56,6 +60,9 @@ předmět i diakritiku Seznam vyplní, ale odstavce spojí do jednoho, takže je
 `mailto:` delší než 1800 znaků některé programy uříznou, nástroj na to upozorní. Pak raději pošta v prohlížeči,
 nebo ať uživatel text zkopíruje z konceptu. Když dlouhý odkaz do webové pošty selže, zkopíruj předmět
 a text ručně. Odkaz obsahuje celý koncept včetně adresátů, proto ho sdílej jen s uživatelem, který ho má odeslat.
+
+Do `data/zadosti.md` zapiš rozepsané žádosti a dotazy se stavem „koncept“. Datum a stav „odesláno“ doplň,
+až uživatel odeslání potvrdí. Samotnou možnost dalšího bádání nech v `data/archivni_dotazy.md`.
 
 ## Vzor 1: matriční úřad, výpis nebo kopie zápisu
 

@@ -4,7 +4,8 @@ description: >-
   Průvodce tvorbou rodokmenu z českých matrik a rodinného webu pro lidi bez zkušeností s genealogií i programováním.
   Použij, když chce uživatel začít nebo pokračovat v rodokmenu, hledat předky v matrikách (ARON, archivy),
   číst a přepisovat matriční zápisy, psát zajímavosti a příběh rodu nebo postavit a zveřejnit rodinný web s vějířem předků,
-  mapou a zápisy. Také pro synchronizaci s FamilySearch a koncepty e-mailů archivům a úřadům.
+  mapou a zápisy. Také pro sčítání, historické mapy a čísla domů, práci s GEDCOMem, hledání na Bádáme.cz
+  nebo genealogickém fóru, synchronizaci s FamilySearch a dotazy archivům a úřadům.
   Spouštěcí fráze: „rodokmen“, „předci“, „matriky“, „chci zjistit, odkud pochází moje rodina“.
 ---
 
@@ -73,6 +74,11 @@ Cíl: znát co nejvíc o 3–4 generacích nazpět, než sáhneš do matrik.
 ## Fáze 2 – Matriky, generace po generaci
 Podrobný postup čtení: `reference/matriky.md`. Archivy: `reference/portaly.md`. Sporná ztotožnění, mrtvé body,
 prameny mimo ČR: `reference/metodika.md`.
+
+Před listováním ověř [farnost a svazek pro hledaný rok](reference/portaly.md#farnost-a-svazek).
+Při práci se sčítáním, čísly popisnými a historickými mapami otevři [Domy a domácnosti](reference/metodika.md#domy-a-domácnosti).
+Pro zápis bočních příbuzných a práci s GEDCOMem otevři [Příbuzní a větve](reference/data.md#příbuzní-a-větve).
+Při hledání na Bádáme.cz nebo genealogickém fóru použij [přehled zdrojů](reference/vyzkum.md#rozcestník-a-genealogické-fórum).
 
 Když vybíráš další práci, otevři [přehled úkolů](reference/vyzkum.md). `tools/pokryti.py ukoly` použije místní data
 a stažené snapshoty FamilySearch. Odhad místa nebo roku ověř podle původního pramene.
@@ -154,11 +160,11 @@ pro každý web pro všechny procesy na počítači.
   všechny projekty; `cache.py stav` ukáže úsporu). Snímky eBadatelny ukládej z prohlížeče (`portaly.md`).
 
 ### Pomocníci (subagenti) – šetrně
-Na velké kolo (např. „projdi 5 svazků a najdi všechny Nováky“) můžeš pustit 2–4 pomocníky paralelně, každého na
-jinou větev nebo archiv (jedno kolo ≈ 15–25 nových předků). Stojí hodně kreditů – před velkým kolem řekni uživateli,
-co plánuješ a proč, a nech si to schválit. **Spouštěj je na levnějším modelu** (Agent s `model: "sonnet"`):
-hledání a první čtení zvládnou, ověření na snímku a zápis do dat děláš ty. Řekni to uživateli, ať ví, proč kredity
-tolik neubývají.
+Před velkým kolem řekni uživateli, kolik práce rozdělíš a proč, a nech si to schválit. Pomocníkům dej krátká zadání
+pro různé větve nebo archivy. Levnější model použij na práci s hotovým textem, třeba třídění odkazů a výtah z přepisu.
+Pro čtení matrik, přihlášek a čísel na mapách vyber model, jehož čtení jsi ověřil na podobných snímcích.
+Má-li nástroj volbu náročnosti, začni na střední (`medium`) a drž se limitu uživatele. K práci se snímky
+předávej jen potřebné listy nebo čitelné výřezy. Pomocník vrací přepis a odkaz na snímek.
 - Přesné zadání: svazek, snímky, koho hledat, formát výsledku (klíč, snímek, souřadnice zápisu, přepis), technické
   pasti z `reference/matriky.md` a pravidla brzdy (síť jen přes `tools/slusne.py`, při hlášce „zastavený“ skončit
   a ohlásit). Ať u každého prošlého snímku napíše, co na něm skutečně přečetl (rok, první jméno), a zmíní i zjevně
@@ -172,8 +178,8 @@ tolik neubývají.
   **s dokladem** a jen **orientačně** – „už prošlé, znovu nehledat“ platí jen pro první. Čtení knihy bez rejstříku
   (hledání naslepo) dej silnějšímu modelu, ne levnějšímu.
 - **Jejich čtení vždy ověř sám na snímku** (`python3 -I tools/overit.py <snímek> x0,y0,x1,y1 pracovni/over`, zlomky
-  0–1, rozdělí zápis na dvě čitelné poloviny), než ho zapíšeš jako `doc`. Uživateli to vysvětli správně: je to stejný
-  model, jde o princip čtyř očí – pomocník nemá kontext (dvě rodiny stejného jména ve vsi).
+  0–1, rozdělí zápis na dvě čitelné poloviny), než ho zapíšeš jako `doc`. Při ověření zohledni kontext,
+  který pomocník neměl, třeba dvě rodiny stejného jména v jedné vsi.
 - Na špatně čitelné knihy (kurent 1. poloviny 19. století, vybledlé snímky) pomocníky nepouštěj, nebo jim dej přesný
   snímek; ARON a Porta fontium zvládají dobře. Prohlížeč může mít najednou jen jeden pomocník, proto dávej přednost
   nástrojům bez prohlížeče.
@@ -191,7 +197,8 @@ a jejich doklady a počkej na výslovný souhlas.
 
 ### E-mail archivu nebo úřadu
 
-Adresu ověř na oficiálním webu instituce. Koncept ulož do `pracovni/zadosti/` podle
+Nejdřív [prověř dostupné prameny](reference/zadosti.md#před-dotazem). Adresu ověř na oficiálním webu instituce.
+Koncept ulož do `pracovni/zadosti/` podle
 [návodu k žádostem](reference/zadosti.md). Příkaz `python3 -I tools/mailto.py <koncept.md> --gmail`
 vytvoří odkaz do Gmailu a odkaz pro výchozí poštovní program. Na Windows ho spusť přes `python -I -X utf8`.
 Ukaž odkaz k otevření a text ke kontrole. E-mail odesílá uživatel.
@@ -209,8 +216,8 @@ Podrobně `reference/web.md`. Ve zkratce:
    http://localhost:4321 – ukaž uživateli. Pouští-li si pak web sám (`npm run nahled`), svůj náhled předtím ukonči. V cloudovém
    prostředí (claude.ai) localhost neuvidí – pošli mu snímky stránek nebo nasaď náhled.
 2. Nastav `data/web.json`: název, úvod, kontakt a **přihlašovací otázku a odpověď** (web je jen pro rodinu).
-3. Po každé změně dat: `npm run data && npm run build`. Hlášky `POZOR: nefunkční odkaz` oprav hned. Po větším kole
-   zkontroluj i texty úvodu ve `web.json` (`uvod`, `zajimavosti_na_uvodu`) – zastarávají.
+3. Po změně dat [ověř nález v místním sestavení](reference/web.md#ověření-nálezu-na-webu). Po větším kole
+   zkontroluj i texty úvodu ve `web.json` (`uvod`, `zajimavosti_na_uvodu`).
 4. Před zveřejněním projdi s uživatelem `reference/soukromi.md` (co na webu bude, žijící lidé, hlášky `CITLIVÉ`
    z `kontrola.py`; schválené zapiš do `web.json` → `citlive_schvaleno`).
 

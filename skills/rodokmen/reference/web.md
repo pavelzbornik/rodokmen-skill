@@ -19,6 +19,20 @@ a překladem), stránka osoby, rodiny, „Co hledáme“, výzkumný deník, hle
 
 Náhled spouštěj na pozadí a uživateli pošli odkaz. Vzhled si ověř sám (snímek obrazovky přes prohlížeč, je-li k dispozici).
 
+## Ověření nálezu na webu
+
+1. Ověř, že ve stejné složce právě neběží jiné sestavení nebo nasazení. Používají stejné výstupní soubory.
+2. Spusť `tools/kontrola.py` z kořene projektu stejně jako při zápisu nálezu. Ve složce `web/` pak spusť
+   `npm run data` a `npm run build`. Pokud export hlásí nefunkční odkaz, oprav zdrojový text a sestavení zopakuj.
+3. Podle změny otevři v místním náhledu stránku osoby, zápisu nebo rodu. Zkontroluj, že je vidět nový údaj,
+   že odkaz vede na správný zápis a že se ukazuje výřez a přepis. Pokud přibyla obec, zkontroluj její polohu
+   na mapě. Chyby oprav v `data/` nebo šabloně webu. Po ověření uživateli řekni, kde nález uvidí. Nasazení
+   vyžaduje jeho výslovný souhlas.
+
+Když nález mění to, co o rodině víme, doplň [příběh nebo zajímavosti](pribehy.md). Piš pro příbuzné.
+Odkaz na osobu vezmi z vygenerovaného `site.json` a ověř ho při sestavení. Opravu dřívějšího závěru vysvětli
+podle nového dokladu.
+
 ## `data/web.json`
 ```json
 {
@@ -186,4 +200,5 @@ nebo složku na místě zálohy skript odmítne s hláškou POZOR a soubory za n
    (ne jen starší stav šablony), nabídni jejich převzetí do nové verze.
 3. **Sloučeno:** prohlédni výsledek (`git diff`), jestli dává smysl.
 4. Ve `web/` `npm install`, `npm run data` a `npm run build`, pak `python3 -I tools/kontrola.py`.
+   Pokud projekt měnil nastavení přístupu, ověř po sloučení i nastavení brány podle postupu pro používaný hosting.
 Starou šablonu přihlášení `export_web.py` odmítne s výzvou k aktualizaci.

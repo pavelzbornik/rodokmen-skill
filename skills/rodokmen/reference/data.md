@@ -119,3 +119,22 @@ v `web/src/data/site.json` (`people`). Při přejmenování osoby se slug změn�
   nejcennější rodinné doklady.
 - Údaje ze stromů (i Smart Match) jsou jen vodítko k zápisu – datum a číslo domu tě dovedou na stránku, ale **jména vždy
   ověř v zápisu** (skutečná chyba: „sňatek“ ze Smart Match byl jiný pár ze stejného domu).
+
+## Příbuzní a větve
+
+- Před přidáním příbuzného prohledej `P`, `SIDE` a případný GEDCOM. Pokud už osoba ve stromu je, využij její
+  záznam a připoj doklad. V `SIDE` je `k` číslo předka, ke kterému se text vztahuje. U sourozence předka je
+  to číslo tohoto předka. Vztah popiš výslovně a do `r` přidej klíč zápisu.
+- Vyhodnocení GEDCOMu pro FamilySearch může doplnit vlastního sourozence ze `SIDE`. V `n` potřebuje jméno
+  a rok narození, v `t` vztah na začátku („Sestra“ nebo „Bratr“) se jménem předka a v `r` klíč zápisu.
+  Pro nevlastního sourozence nebo příbuzného s vlastní rodinou použij odpovídající vazby v GEDCOMu.
+- Pokud používáš GEDCOM pro [synchronizaci s FamilySearch](fs-sync.md#co-se-porovnává), ponech původní
+  export a doplnění udržuj v samostatném GEDCOMu nastaveném přes `velka_rodina.doplnky` v `data/web.json`.
+  Doložený zápis můžeš připojit značkou `_ZAZNAM` s klíčem z `zaznamy.json`. Ověř, že nové osoby mají
+  jedinečná ID a vazby míří na správné osoby a rodiny. Chybu v převzatém
+  stromu můžeš pro synchronizaci opravit přes `velka_rodina.opravy`. Do `proc` uveď důvod a zdroj opravy.
+  Před uložením projdi hlášky `kontrola.py` a ověř, že vztahy odpovídají dokladům. Zkontroluj zejména záměny
+  jmenovců, věk rodičů při narození dětí a případné kruhy ve vazbách rodič a dítě.
+- Boční větev připoj podle doložené vazby k předkovi. Shoda příjmení může ukázat, kde hledat. Dokud vazba chybí,
+  veď rodinu zvlášť v pracovních poznámkách nebo v samostatné části GEDCOMu. U odhadů a rozporných údajů
+  zachovej jejich původ. Pro sdílený strom dál platí [pravidla pro zápis na FamilySearch](fs-sync.md#co-se-porovnává).

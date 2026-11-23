@@ -40,10 +40,16 @@ Při čtení přes nástroje dodržuj podmínky portálu. Stažené stránky a p
 
 - `python -I -X utf8 tools/badame.py stranka 1` vypíše odkazy z [Bádáme.cz](https://badame.cz/) a uloží stránku
   a výsledky do `pracovni/badame/`. Další stranu zadej číslem. `vse --od N --max-stran 5` projde omezený počet
-  stran a vypíše dosud nezhodnocené položky. `--znovu` obnoví stažené stránky.
-- U zajímavého zdroje si poznamenej, jaké území, období a druhy dokladů pokrývá a jestli vyžaduje účet.
-  Do volitelného `docs/zdroje_badame.md` zapiš celou adresu z rozcestníku. Podle ní nástroj pozná posouzenou položku,
-  i když se zdroj přestěhoval. Odkazy z jiných webů nástroj uvádí ve výstupu.
+  stran a vypíše dosud nezhodnocené položky. Ve výstupu jsou i cizí odkazy z příspěvků Bádáme. `--znovu`
+  obnoví stažené stránky.
+- Zdroje posuzuj podle otevřených otázek v `data/STAV.md` a `data/archivni_dotazy.md`. Položku
+  `ZHODNOCENO` přeskoč. U `známe:` nejdřív přečti uvedené soubory a doplň, co v nich chybí.
+- U každé nové položky si poznamenej dnešní adresu, území, období, druh dokladů a podmínky přístupu.
+  Pokud je vyhledávání veřejně dostupné, zkus jeden cílený dotaz na historickou obec nebo osobu a zapiš výsledek.
+  Užitečný zdroj ověř na konkrétní stránce a připoj k otázce, kterou může pomoci zodpovědět.
+- Do volitelného `docs/zdroje_badame.md` ulož výsledek a celou původní adresu z rozcestníku, i když se zdroj
+  přestěhoval. Zopakuj výpis dané strany. U uložených položek má ukázat `ZHODNOCENO`. Odkaz z rozcestníku
+  je stopa. Nález zapiš jako doklad až po přečtení pramene.
 - `python -I -X utf8 tools/forum_genealogie.py hledej "Příjmení*"` hledá ve veřejné části
   [genealogického fóra](https://genealogie.taby.cz/). Zkus jedno příjmení najednou. `--nazvy` omezí hledání na
   názvy témat, `--rubrika <číslo>` na jednu rubriku. `tema <číslo nebo odkaz>` uloží veřejné příspěvky do
@@ -51,6 +57,6 @@ Při čtení přes nástroje dodržuj podmínky portálu. Stažené stránky a p
   Pokud fórum požádá o pauzu nebo zablokuje požadavek, skonči a pokračuj později.
 - `navrhy` vypíše místní nápady na hledání podle historických osob a obcí, `hledano` zobrazí místní deník dotazů.
   Do hledání zadávej jen údaje, které můžeš předat veřejnému webu. Příspěvky jsou vodítka, která ověř na snímku.
-  Případný dotaz posílá uživatel sám.
+  Před přípravou dotazu [prověř dostupné prameny](zadosti.md#před-dotazem). Příspěvek posílá uživatel sám.
 
 Pro rakouské prameny otevři [Matriculu a ANNO](portaly.md#matricula).

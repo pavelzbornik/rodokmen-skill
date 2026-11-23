@@ -36,6 +36,21 @@ z nich brát snímky: `portaly.md`, formát dat: `data.md`.
   domovskou obec → domovská farnost. **Domovská obec ≠ místo narození** (domovské právo se získávalo i pobytem nebo
   sňatkem).
 
+## Domy a domácnosti
+
+1. U čísla popisného ověř obec nebo osadu a katastr v době zápisu. Při víceznačném názvu použij okres, farnost
+   nebo sousední obec. Ve shrnutí a překladu vždy uveď obec přímo před jejím čp., aby bylo jasné, ke kterému
+   místu číslo patří. Dobový tvar zachovej v přepisu.
+2. Na indikační skice rozliš čísla popisná od čísel stavebních a pozemkových parcel. Barvy se mohou mezi
+   skicami lišit. Ověř čísla podle legendy, popisků nebo srovnáním s císařským otiskem a parcelním protokolem.
+   V Dolních Rakousích může číslo domu ke stavební parcele uvádět protokol františkánského katastru.
+3. Než spojíš historické čp. s dnešní adresou, porovnej více domů podle polohy. Při přečíslování hledej stejnou
+   stavební parcelu na dobových mapách. Dnešní adresa ani bod obce v [`mista.json`](data.md#mistajson)
+   samy nedokládají polohu domu. Do deníku zapiš pramen, období a případnou nejistotu. Šablona webu má mapu obcí.
+4. Po přečtení sčítacího archu porovnej celou domácnost s místním stromem včetně širší rodiny. Hledej také děti
+   z dřívějších manželství a ženy pod rodným i pozdějším příjmením. Shodu ověř podle vztahů a dalších dokladů,
+   třeba podle křtu nebo sňatku. Kmotry, svědky a jmenovce s nejasnou vazbou zapiš do deníku jako stopy.
+
 ## Ztotožnění – kdy je to tatáž osoba
 - **Výchozí pravidlo:** dvě osoby stejného jména spoj jen podle **dvou nezávislých znaků** – číslo domu, oba rodiče,
   manžel(ka), stejný okruh kmotrů, přesné datum narození. Každý znak z jiného zápisu (jiný písař/oznamovatel).
